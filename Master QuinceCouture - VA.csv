@@ -1,0 +1,192 @@
+Code,CLIENTE,FECHA DE ORDEN,EVENTO,COMPANIA,ESTILO,COLOR,SIZE,STATUS
+25140,Agustina Doval ,"Enero 2, 2026","Junio 6, 2026",Shankara,FRN8419,Ivory,8,ENTREGADO
+25141,Yeri Pacheco,"Enero 2, 2026","Mayo 13, 2026",Quince couture,QC3302,Lilac,31.5/25.5,ENTREGADO
+25142,Rosa Maldonado,"Enero 3, 2026","Mayo 13, 2026",Quince couture,QC4401,Red,34.5/27,ENTREGADO
+25143,Maria Garcia,"Enero 3, 2026","Junio 6, 2026",Quince couture,QC5501,Ruby/Gold,39.5/36,ENTREGADO
+25144,Romina Castro,"Enero 3, 2026","Julio 20, 2026",Quince couture,QC5501,Lilac,31.5/25.5,ENTREGADO
+25145,Jose Flores,"Enero 4, 2026","Marzo 28, 2026",Quince couture,QC5501,Ivory/Champ,6,ENTREGADO
+25146,José Maldonado,"Enero 7,2026","Agosto 13,2026",Quince couture,QC3104,Light Blue,34.5/31,In-store
+25147,Eduardo Bonilla,"Enero 8,2026","Mayo 2,2026",Princesa,PR30228,Ballerina Pink,12,ENTREGADO
+25148,Maria Rivera,"Enero 9, 2026","Abril 18, 2026",Quince couture,QC4403,Blush,35.5/29,ENTREGADO
+25149,Doralicia Marenco,"Enero 9, 2026","Mayo 23, 2026",Amabella,Q1097,Blush,2,ENTREGADO
+25150,Carmen Gonzales,"Enero 10, 2026","Julio 11, 2026",Quince couture,QC4403,Blush,33/29,ORDERED
+25151,Argelis Rodriguez,"Enero 10, 2026","Julio 4, 2026",Princesa,PR30191,Rose Gold,4,ENTREGADO
+25152,Sandra Flores,"Enero 11, 2026","Junio 13, 2026",Quince couture,QC5501,Sage,32/27,ENTREGADO
+25153,Norma Ayala,"Enero 11,2026","Mayo 1,2026",Amabella,Q1053,Esmeralda/Gold,8,ENTREGADO
+25154,Stefany Arana,"Enero 11, 2026","Julio 8,2026",Amabella,Q1053,Esmeralda/Gold,6,In-store
+25155,Saul Galeas,"Enero 12, 2026","Junio 13, 2026",Quince couture,QC5505,Red,29.5/24,ENTREGADO
+25156,Xiomara Rodriguez,"Enero 13,2026","Junio 3,2026",Quince couture,QC3405,Light Blue,39/33.5,ENTREGADO
+25157,Reina Cabrera,"Enero 15,2026","Octubre 29,2026",Princesa,PR30228,Ballerina Pink,10,In-store
+25158,Imelda Castillo,"Enero 16, 2026","Mayo 16, 2026",Quince couture,QC5501,Light Blue,32/26.5,ENTREGADO
+25159,Marisol Gonzales,"Enero 17,2026","Mayo 11,2026",Princesa,PR30191,Rose Gold,Double 0,ENTREGADO
+25159,Marisol Gonzales,"Enero 17,2026","Septiembre 24,2026",Amabella,Q1059,Light Blue,0,In-store
+25160,Alma Aguilar,"Enero 17,2026","Julio 5,2026",Princesa,PR30191,Slate/Gold,Double 0,In-store
+25161,Bernie Gamarro,"Enero 17,2026","Julio 8,2026",House of Wu,56526,Lilac,Double 0,In-store
+25162,Karol Meza,"Enero 17,2026","Mayo 15,2026",Ragazza,EV56-656,Rosa Baby,9,ENTREGADO
+25163,Jesse Gonzales,"Enero 19, 2026","Octubre 24, 2026",Quince couture,QC3104,Blush,40/34,In-store
+25164,Veronica Castro,"Enero 19, 2026","Septiembre 5, 2026",Quince couture,QC5505,Red,40/35,In-store
+25165,Milagro Rocha,"Enero 19, 2026","Julio 18, 2026",Amabella,Q1084,Fuchsia,6,ENTREGADO
+25166,Daniela Garcia,"Enero 24, 2026","Septiembre 12, 2026",Princesa,PR30171,Emerald/oro,2,In-store
+25168,Emeli Rodriguez ,"Enero 24, 2026","Agosto 22, 2026",House of Wu,26131,Crystal Pink,8,In-store
+25169,Vanessa Tellez,"Enero 24, 2026","Noviembre 28, 2026",Amabella,Q1094,Light Blue,Double 0,ORDERED
+25170,Diana Ortiz,"Enero 24, 2026","Mayo 16, 2026",Quince couture,QC3301,Pink,39.5/33,ENTREGADO
+25171,Sandra Rojas,"Enero 27,2026","Agosto 8,2026",Amabella,Q1097,Blush,8,ENTREGADO
+25172,Evangelina Vasquez,"Enero 27,2026","Mayo 23, 2026",Quince couture,QC3405,Light Blue,33/27,ENTREGADO
+25173,Maria Menjivar,"Enero 28,2026",Abril 2026,Princesa,PR30228,Ballerina Pink,0,ENTREGADO
+25174,Flor Pleitez,"Enero 30,2026","Junio 5,2026",Quince couture,QC5504,Blush,32.5/26.5,CANCELADO
+25175,Dianna Martinez,"Enero 30,2026","Julio 7,2026",Quince couture,QC3405,Light Blue,35/29,In-store
+25176,Reina De la Paz,"Enero 31, 2026","Junio 27, 2026",Quince couture,QC4401,Red,29/23,In-store
+25177,Mayra Ventura,"Enero 31, 2026","Mayo 9, 2026",House of Wu,26116,Pink/Silver,0,ENTREGADO
+25178,Magdalena Reyes,"Enero 31, 2026","Agosto 15, 2026",Quince couture,QC5501,Pink,29/22.5,ORDERED
+25179,Sandra Encinas,"Febrero 1, 2026","Agosto 29, 2026",Princesa,PR30191,Navy/Gold,12,ENTREGADO
+25180,Florisa Ramos,"Febrero 1, 2026","Julio 11, 2026",Princesa,PR30191,Magenta/Gold,Double 0,ENTREGADO
+25181,Bianca Ojeda,"Febrero 1, 2026","Agosto 1, 2026",Princesa,PR30205,Emerald/Gold,0,ENTREGADO
+25182,Flor Pleitez,"Febrero 2,2026","Junio 5,2026",Quince couture,QC5501,Sage silver,32.5/26.5,ENTREGADO
+25183,Karina Aranda,"Febrero 2,2026","Julio 5, 2026",Ragazza,M44-144,Fuchsia/Rojo,34/28,ENTREGADO
+25184,Perla Alvarez,"Febrero 07, 2026","Julio 18, 2026",House of Wu,56498,Medow Gold,Doble 0,ENTREGADO
+25185,Omayra Castro,"Febrero 07, 2026","Julio 22, 2026",Ragazza,PRC0-033,Navy,3,ENTREGADO
+25186,Glenda Ortiz,"Febrero 07, 2026","Junio 25, 2026",Ragazza,ev56-656,Champagne,9,ENTREGADO
+25187,Jennifer Ramirez,"Febrero 07, 2026","Junio 25, 2026",Quince couture,QC5501,Red/Gold,31/25,ENTREGADO
+25188,Karla Maldonado,"Febrero 08, 2026","Julio 25, 2026",Princesa,PR30191,Magenta/Gold,Doble 0,ENTREGADO
+25189,Anner Orellana,"Febrero 08, 2026","Abril 20,2026",Quince couture,QC5505,Royal Blue,37/30,ENTREGADO
+25190,Nolvia Mejia,"Febrero 08, 2026","Agosto 15, 2026",Princesa,PR30191,Rose Gold,Doble 0,In-store
+25191,Yeyssie Leon,"Febrero 9, 2026","Julio 11, 2026",Amabella,Q1059,Light Blue,0,ENTREGADO
+25192,Felipe Mora,"Febrero 14,2026","Noviembre 14,2026",Amabella,Q1097,Sage,0,In-store
+25193,Jennie Fiel,"Febrero 15,2026","Mayo 22,2027",Princesa,PR30205,Champagne,0,NEED TO ORDER
+25194,Docideria Colque,"Febrero 15,2026","Julio 18, 2026",Rachel allan,RQ3163,Lilac,6,In-store
+25195,Heraldo Chinchilla,"Febrero 15,2026","Agosto 15, 2026",Quince couture,QC5506,Pink/Gold,29.5/23.5,ENTREGADO
+25196,Mario Sandoval,"Febrero 16,2026","Septiembre 26,2026",Princesa,PR30135,Petal,16,In-store
+25197,Melanie Shlto,"Febrero 16,2026","Julio 10,2026",Quince couture,QC5505,Royal Blue,36/30,In-store
+25198,Elsa del Cid,"Febrero 17,2026","Agosto 15, 2026",Quince couture,QC5501,Pink,40/34.5,ORDERED
+25199,Michelle Shimizu,"Febrero 21,2026","Noviembre 7,2026",Amabella,Q1050,Esmeralda/Gold,Double 0,In-store
+25200,Carolina Magaña,"Febrero 21,2026","Junio 11, 2026",Quince couture,QC5502 - 2piezas,Blush,29/24,ENTREGADO
+25201,Alexandra Murthy,"Febrero 21,2026","Mayo 12,2026",Ragazza,ev56-656,Lilac Silver,7,ENTREGADO
+25202,Yadira Madrid,"Febrero 21,2026","Agosto 1,2026",Quince couture,QC3104,Blush,30/29,In-store
+25203,Deyse Asin,"Febrero 21,2026","Septiembre 30,2026",Amabella,Q1097,Blush,4,In-store
+25204,Maria Martinez,"Febrero 21,2026","Noviembre 14,2026",Quince couture,QC5505,Royal Blue,32.5/27.5,In-store
+25205,Cristofer Gavidia,"Febrero 22,2026","Junio 15,2026",Quince couture,QC3405,Light Blue,37/33.5,ENTREGADO
+25206, Yesica Alvarez,"Febrero 22,2026","Agosto 14,2026",Quince couture,QC4401,Red,31/26,NEED TO ORDER
+25207,Maria Henriquez,"Febrero 22,2026","Junio 27, 2026",Quince couture,QC5505,Royal Blue,36.5/31,ENTREGADO
+25208,Tatiana Enriquez,"Febrero 22,2026","Julio 7,2026",Quince couture,QC5501,Lilac,34.5/29,In-store
+25209,Erika Henriquez,"Febrero 23,2026","Octubre 30,2026",Quince couture,QC5501,Lilac,29/23,NEED TO ORDER
+25210,Karla Morataya,"Febrero 24,2026","Julio 18, 2026",Amabella,Q1059,Light Blue,8,ENTREGADO
+25211,Johana Rodriguez,"Febrero 24,2026","Septiembre 12, 2026",Ragazza,ev56-656,Rosa Baby,5,In-store
+25211,Johana Rodriguez,"Febrero 24,2026","Septiembre 12, 2026",Quince couture,QC4402,Rosa Baby,"B:25C:23.5/HC:11,CF:38,LT:42",NEED TO ORDER
+25212,Brenda Trejo,"Febrero 26, 2026","marzo 06, 2027",Quince couture,QC5506,Blush/Gold,8,ALTERACIONES
+25213,René Sanchez,"Febrero 27,2026","Agosto 26,2026",House of Wu,56546,Sky Blue,Double 0,ENTREGADO
+25214,Norma Bautista,"Febrero 28, 2026","Junio 18, 2026",Quince couture,QC5501,Sage/silv,35/30,ENTREGADO
+L#115,Norma Bautista,"Marzo 1,2026","Junio 18, 2026",Quince couture,QC5501,Sage silver,3-4,ENTREGADO
+25215,Sonia Castellon,"Marzo 1,2026","Agosto 15,2026",Princesa,PR22022,Rose Gold,8,In-store
+25216,Lesly Lopez,"Marzo 1,2026","Agosto 22,2026",Quince couture,QC4403,Blush,33/27,NEED TO ORDER
+25217,Jose Gongora,"Marzo 1,2026","Noviembre 14,2026",Quince couture,QC5506,Pink/Gold,38/35,ENTREGADO
+25218,Carolina Alvarez,"Marzo 1,2026","Mayo 24,2026",Quince couture,QC4401,Red,34/27,ENTREGADO
+25219,Mercedes Funes,"Marzo 2,2026","Junio 12,2026",Quince couture,QC5506,Pink/Gold,43/40,ENTREGADO
+25220,Gloris Trejos,"Marzo 3, 2026","Marzo 19, 2026",House of Wu,56548,red,12,ENTREGADO
+25221,Celenia Herbert,"Marzo 6,2026","Noviembre 13,2026",Quince couture,QC5502 - 2Piezas,Blush,33.5/28.5,NEED TO ORDER
+25222,Claudia Ramirez,"Marzo 7,2026","Julio 31,2026",Quince couture,QC5501,Pink,33.5/29,NEED TO ORDER
+25223,Maria Romero,"Marzo 7,2026","Noviembre 21,2026",Quince couture,QC5501,Pink,32/26,NEED TO ORDER
+25224,Carla Rojas,"Marzo 7,2026","Julio 1,2026",Quince couture,QC3405,Light Blue,38/32.5,ENTREGADO
+25225,Saul de Leon,"Marzo 7,2026","Diciembre 5,2026",Quince couture,QC5508,Light Blue,31/28,NEED TO ORDER
+25226,Lizz Jimenez,"Marzo 7,2026","Agosto 1, 2026",Princesa,PR30191,champagne,6,In-store
+25227,Mary Oliva,"Marzo 8,2026","Junio 20,2026",Amabella,Q1050,Navy Gold,4,ENTREGADO
+25228,Johan Solarte,"Marzo 8,2026","Julio 18,2026",Amabella,Q1084,Fuchsia,Double 0,In-store
+25229,Mariana Azuero,"Marzo 9,2026","Mayo 30,2026",Quince couture,QC5506,Pink/Gold,32.5/27.5,ENTREGADO
+25230,Oriana Molina,"Marzo 10, 2026","Noviembre 5, 2026",Quince couture,QC3302,Lila,33.5/27.5,NEED TO ORDER
+25231,Felix Herrera,"Marzo 14,2026","Diciembre 5,2026",House of Wu,56543,Lilac,0,ORDERED
+25232,Lisa Castillo,"Marzo 14,2026","Agosto 1, 2026",Quince couture,QC5506,Esmerlada oro,36.5/33.5,ENTREGADO
+25232,Lisa Castillo,"Marzo 14,2026","Agosto 1, 2026",Quince couture,QC5506,Pink oro,35.5/32,ENTREGADO
+25233,Linda Martinez,"Marzo 14,2026","Marzo 19, 2026",Quince couture,12338,Rojo,M,ENTREGADO
+25234,Maurilla Suarez,"Marzo 15,2026","Septiembre 12,2026",Quince couture,QC5506,Navy Gold,32/27.5,NEED TO ORDER
+25235,Ana Baires,"Marzo 15,2026",Junio 2027,Quince couture,QC4401,Rojo,30/25,NEED TO ORDER
+25236,Jasmin Sandoval ,"Marzo 15,2026","Mayo 20,2026",,,,33.5/29,NEED TO ORDER
+25237,Esmeralda Aguirre,"Marzo 16,2026","Septiembre 19,2026",Quince couture,QC5501,Lilac,30/26,NEED TO ORDER
+25237,Esmeralda Aguirre,"Marzo 16,2026","Septiembre 19,2026",Quince couture,QC5501,Lilac,3-4,In-store
+25238,Sasha Jaggar,"Marzo 17,2026","Diciembre 18,2026",Princesa,PR30191,Champagne/Gold,Double 0,ENTREGADO
+25239,Mary Cox,"Marzo 18,2026","Enero 3,2027",Quince couture,QC4404,Slate Blue,39/35,NEED TO ORDER
+25240,Joseph Uriarte,"Marzo 20,2026","Abril 24,2026",Quince couture,QC3212,Sage,4,ENTREGADO
+25241,Durcy Carbajal,"Marzo 20,2026","Diciembre 12,2026",Princesa,PR30171,Royal Gold,0,ENTREGADO
+25242,Egla Torres,"Marzo 20,2026","Septiembre 26,2026",Princesa,PR30175,Garden Rose,14,In-store
+25243,Yessica Godoy,"Marzo 21, 2026","Septiembre 5, 2026",Amabella,Q1096,Champagne/Gold,0,ORDERED
+25244,Lorena Argueta,"Marzo 21, 2026","Junio 11, 2026",Quince couture,QC3104,Blush,35.5/30.5,NEED TO ORDER
+25244,Lorena Argueta,"Marzo 21, 2026","Junio 11, 2026",Amabella,QA163,Sage/Gold,4,In-store
+25245,Katy Paz,"Marzo 21,2026","Septiembre 12,2026",Quince couture,QC5506,Navy Gold,38/35,NEED TO ORDER
+25246,Lizbet Tapia ,"Marzo 22, 2026","Septiembre 12,2026",Rachel allan, RQ2241,Deep Red,2,ENTREGADO
+25247,Maricela Lopez,"Marzo 22, 2026","Noviembre 14,2026",Princesa,PR30231,Pink Silver,16,ORDERED
+25248,Jina Farinas,"Marzo 22, 2026","Agosto 15,2026",Quince couture,QC3405,Blush,29/24,NEED TO ORDER
+25249,Veronica Velasquez,"Marzo 22, 2026","Agosto 15,2026",Princesa,PR30198,Wine Gold,0,In-store
+25250,Liboria Flores,"Marzo 24, 2026","Junio 11, 2026",Rachel allan,RQ2215,Champagne/Gold,6,ENTREGADO
+25251,Angelica Trigueros,"Marzo 28, 2026","Noviembre 28, 2026",Quince couture,QC5505,Royal Blue,29.5/24,In-store
+25252,Vasheka Oliveras,"Marzo 28, 2026","Abril 10, 2027",Princesa,PR30171,Red,4,NEED TO ORDER
+25253,Sandra Gonzales,"Marzo 28, 2026","Septiembre 25, 2026",Rachel allan,RQ2241,Deep Red,12,ORDERED
+25254,Jose Andrade ,"Marzo 28, 2026","Octubre 10,2026",Princesa,PR30171,Royal Gold,8,In-store
+25255,Reina Garcia,"Marzo 28, 2026","Julio 10,2026",Quince couture,QC5506,Esmeralda oro,32/29,NEED TO ORDER
+25256,Claudia Montoya,"Marzo 29, 2026","Septiembre 26, 2026",Quince couture,QC3405,Blush,40/34.5,NEED TO ORDER
+25257,Iris Diaz,"Marzo 30,2026","Julio 11, 2026",House of Wu,56546,Champagne ,4,ENTREGADO
+25258,Rosario Morales,"abril 02, 2026","Septiembre 5, 2026",Princesa,PR30191,Rose Gold,Doble 0,ORDERED
+25259,Katherine Lovo,"abril 02,2026","Marzo 6,2027",Amabella,Q1097,Blush,6,NEED TO ORDER
+25260,Rosa Cruz,"abril 03,2026","Agosto 15,2026",Amabella,Q1081,Pink ,0,ORDERED
+25261,Ranger Najarro,"abril 03,2026","Julio 1,2026",Quince couture,QC5508,Light Blue,39/33.5,ENTREGADO
+25262,Cindy Orellana,"abril 04,2026","Abril 17,2027",Quince couture,QC5501,Champagne Gold,35/29,NEED TO ORDER
+25263,Zoraida Gonzalez,"abril 04,2026","Julio 1,2026",Quince couture,QC4404,Black,32/28,ENTREGADO
+25264,Lucho Rojas,"abril 04,2026","Diciembre 12,2026",House of Wu,80050,Navy Gold,2,ORDERED
+25265,Rainirda Nova,"abril 05, 2026","Septiembre 19, 2026",Quince couture,QC5506,Lilac/Gold,31/25,NEED TO ORDER
+25266,Jhoana Lucero,"abril 05,2026","Octubre 17,2026",Amabella,Q1097,Blush,Double 0,ORDERED
+25267,Torri Thomas,"abril 9,2026","Mayo 2,2026",Quince couture,QC12338,Red,2XL,ENTREGADO
+25268,Edgar Martinez,"abril 10,2026","Mayo 16,2026",Quince couture,QC5505,Red,8,ENTREGADO
+25269,Valentina Lopez,"abril 11,2026","Marzo 27,2027",Amabella,Q1097,Blush,6,NEED TO ORDER
+25270,Robin Smith,"abril 11,2026","Mayo 2,2026",Quince couture,QC3104,Blush,L,ENTREGADO
+25271,Ebelia Flores,"abril 11,2026","Agosto 12,2026",Quince couture,QC3405,Light Blue,33.5/29.5,NEED TO ORDER
+25272,Sandra Constanza,"abril 11,2026","Septiembre 24,2026",Princesa,PR30224,Champagne/Gold,2,In-store
+25273,Rosario Guevara,"abril 12,2026","Abril 5,2027",Quince couture,QC3405,Light Blue,33/26.5,NEED TO ORDER
+25274,Amy Buruca,"abril 12,2026","Mayo 15,2027",Amabella,Q1097,Blush,Double 0,NEED TO ORDER
+25275,Sandra Merino,"abril 12,2026",Mayo 2026,Morilee,89354,Yelow,6,ENTREGADO
+25276,Lesly Lopez,"abril 14, 2026","Agosto 22, 2026",Quince couture,QC4403,Blush,26/27/32,NEED TO ORDER
+25277,Rosa Hercules,"abril 15,2026","Octubre 26,2026",Quince couture,QC3402,Blush,44/39,NEED TO ORDER
+25278,Norma Flores,"abril 16,2026","Agosto 5,2026",Quince couture,QC5501,Pink,41.5/35,NEED TO ORDER
+25279,Itza Flores,"abril 16,2026","  Agosto 5, 2026",Amabella,Q1096,Champagne,6,ORDERED
+25280,Kasimma Melendez,"abril 17,2026","Mayo 17,2026",Quince couture,QC5503,Red,12,ENTREGADO
+25281,Janeth Munoz,"abril 17,2026","Noviembre 28, 2026",Amabella,Q1052,Blue,Double 0,ORDERED
+25282,Rosa Knight,"abril 19,2026","Octubre 1, 2026",Amabella,QA161,Navy Silver,Double 0,In-store
+25283,Margoth Gomez,"abril 19,2026","Julio 18,2026",Quince couture,QC5506,Pink Gold,29.5/24,NEED TO ORDER
+25284,Maribel Catinac,"abril 19,2026","Abril 30,2026",Morilee,34083,Bahama Blue,10,ENTREGADO
+25285,Fidelia Perez,"abril 19,2026","Junio 20,2026",Princesa,PR30171,Royal Blue,10,In-store
+25286,Maria Mejia,"abril 21, 2026","Septiembre 12, 2026",Amabella,Q1097,Blush,0,ORDERED
+25287,Esmeralda Campos,"abril 22,2026","Febrero 11,2027",Amabella,Q1094,Lilac silver,Double 0,NEED TO ORDER
+25288,Maria Diego,"abril 24,2026","Septiembre 5, 2026",Quince couture,QC5501,Pink,33.5/29.5,NEED TO ORDER
+25289,Emma Ponce,"abril 25,2026","Octubre 5,2026",Quince couture,QC5506,Lilac Gold,31.5/27,NEED TO ORDER
+25290,Wendy Nordean,"abril 25,2026","Junio 24,2026",Amabella,Q1097,Blush,2,ENTREGADO
+25291,Brittany Queenan,"abril 28,2026","Mayo 2,2026",Quince couture,OM11443,Blush,2XL,ENTREGADO
+25292,Karol Meza,"abril 29,2026","Mayo 16,2026",Quince couture,Mini QC4402,Blush,8,ENTREGADO
+25293,Rogelio Balderrama,"Mayo 2,2026","Septiembre 24,2026",Quince couture,QC5508,Light Blue,37/33,NEED TO ORDER
+25293,Rogelio Balderrama,"Mayo 2,2026","Septiembre 24,2026",Quince couture,QC5506,Esmeralda oro,33/29,NEED TO ORDER
+25294,Maria Monterroso,"Mayo 2,2026","Julio 11,2026",Quince couture,QC5508,Light Blue,34/27,NEED TO ORDER
+25295,Dayana Cook,"Mayo 2,2026","Mayo 23,2026",Quince couture,QC5501Mini,Lilac,5-6,ENTREGADO
+25296,Milcia Valdez,"Mayo 3,2026","Octubre 6,2026",Quince couture,QC5501,Pink,33/28,NEED TO ORDER
+25297,Cristina Lopez,"Mayo 4,2026","Agosto 8,2026",Quince couture,QC5501,Light Blue,B:25 C:23 H:43,NEED TO ORDER
+25298,Neff Jenkins,"Mayo 8,2026","Mayo 16,2026",Quince couture,QC5501Mini,Sage,6-7yr,ENTREGADO
+25299,Olivia Flores,"Mayo 9,2026","Octubre 17,2026",House of Wu,56540,Navy Gold,14,ORDERED
+25300,Lourdes Zelaya,"Mayo 9,2026","Julio 15,2026",Quince couture,QC5501,Light Blue,41/37,NEED TO ORDER
+25301,Anabel Jimenez,"Mayo 9,2026","Septiembre 5, 2026",Quince couture,QC5501 Mini,Pink,B:23 C:21.5 H:42,NEED TO ORDER
+25302,Zulma Martinez,"Mayo 11, 2026","Septiembre 26, 2026",Amabella,Q1097,Blush,10,ORDERED
+25303,Rosa Sandi,"Mayo 12, 2026","Enero 16, 2027",House of Wu,26140,Blush,0,NEED TO ORDER
+25304,Linda Hernandez,"Mayo 17,2026","Julio 8,2026",Quince couture,QC5503,Red Silver,32/27.5,NEED TO ORDER
+25305,Fabiola Perez,"Mayo 17,2026","Mayo 30,2026",Quince couture,QC3104 Mini,Blush,S,ENTREGADO
+25306,Yolanda Luna,"Mayo 23, 2026","Febrero 10, 2027",Ragazza,MV17-117,Red/Black,13,NEED TO ORDER
+25307,Patricia Martinez,"Mayo 23, 2026","Enero 2, 2027",House of Wu,26127,Wine Gold,0,NEED TO ORDER
+25308,Lesly Madrigal ,"Mayo 24, 2026","Enero 1, 2027",Quince couture,QC4404,Black,31/24,NEED TO ORDER
+25309,Maya Kohil,"Mayo 24, 2026","Agosto 21, 2026",Rachel allan,RQ2240,Ivory/Sage,12,CANCELADO
+25310,Nidia Ramirez,"Mayo 25, 2026","Marzo 17, 2027",Quince couture,QC3405,Pink,37/32,NEED TO ORDER
+25311,Glenda Aguirre,"Mayo 26, 2026","Octubre 8, 2026",Amabella,Q1097,Blush,2,In-store
+25312,Silvia Sandoval,"Mayo 28, 2026","Julio 31, 2026",Quince couture,QC5506,Pink/Gold,34/31,NEED TO ORDER
+25313,Lorena Amaya,"Mayo 29,2026","Octubre 3,2026",House of Wu,56548,Red,6,NEED TO ORDER
+25314,Fatima Quiroz,"Mayo 30,2026","Junio 27,2026",Princesa,PR12264,Wine Gold,2,ENTREGADO
+25315,Yanet Herbas,"Junio 02, 2026","Agosto 22, 2026",Quince couture,QC5501,Light Blue,39/33,NEED TO ORDER
+25316,Guadalupe Perez,"Junio 04, 2026","Octubre 3, 2026",Quince couture,QC5506,Esmeralda oro,40/37,NEED TO ORDER
+25317,Norma Garcia,"Junio 7, 2026","Octubre 16, 2026",Quince couture,QC3104,champ/pink,XL,ENTREGADO
+25318,Jenni Ruiz,"Junio 7, 2026","Noviembre 14, 2026",Quince couture,QC3402,Blush,28.5/24,NEED TO ORDER
+25319,Pamela Blanco,"Junio 7, 2026","Noviembre 14, 2026",Quince couture,QC4404,Light Blue,43/43,NEED TO ORDER
+25320,Virginia Alarcon,"Junio 7, 2026","Septiembre 19, 2026",Quince couture,QC5506,Esmeralda oro,35/31,NEED TO ORDER
+25321,Deborah Jaldin,"Junio 9, 2026","Agosto 1, 2026",Quince couture,QC5501,Pink,33/27,ORDERED
+25322,Yeimi Gonzalez,"Junio 19, 2026","Marzo 6, 2027",Quince couture,QC5506,Pink/Gold,42/39,NEED TO ORDER
+25323,Bryan De La O,"Junio 20,  2026","abril 8, 2027",Amabella,Q1081,Gold,Double 0,NEED TO ORDER
+25324,Marlene Abrego,"Junio 22, 2026","Febrero 20, 2027",Quince couture,QC4401,Red,40/36,NEED TO ORDER

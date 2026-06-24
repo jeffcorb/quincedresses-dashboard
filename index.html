@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuinceDresses · Panel de Ventas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:        #faf6f1;
+      --cream-dark:   #f0e8dc;
+      --rose:         #8b1a4a;
+      --rose-deep:    #6d1338;
+      --rose-light:   #c4698a;
+      --gold:         #c9974a;
+      --gold-light:   #e8c98a;
+      --dark:         #2d1a1a;
+      --muted:        #7a6060;
+      --border:       #e4d0c4;
+      --white:        #ffffff;
+      --shadow:       0 2px 12px rgba(45,26,26,0.07);
+      --shadow-hover: 0 4px 20px rgba(45,26,26,0.14);
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: 'Lato', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--rose);
+      color: var(--white);
+      padding: 2.2rem 1.5rem 1.8rem;
+      text-align: center;
+    }
+    .header-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 0.5rem;
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1.1;
+    }
+    .header-tagline {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 0.4rem;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    /* ── ERROR BANNER ── */
+    #error-banner {
+      display: none;
+      background: #fff5f5;
+      border: 1px solid #f5c2c7;
+      border-radius: 8px;
+      color: #842029;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+    }
+
+    /* ── LOADING ── */
+    #loading {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--muted);
+    }
+    #loading .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--rose);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1.5rem 0 1.2rem;
+    }
+    .filter-btn {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.42rem 1.25rem;
+      transition: all 0.18s;
+    }
+    .filter-btn:hover { border-color: var(--rose); color: var(--rose); }
+    .filter-btn.active {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: var(--white);
+    }
+
+    /* ── METRICS GRID ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+    @media (min-width: 600px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .metric-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1rem 1.1rem;
+    }
+    .metric-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .metric-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--rose);
+      line-height: 1.1;
+    }
+    .metric-value.sm { font-size: 1rem; padding-top: 0.25rem; }
+    .metric-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── SEARCH ── */
+    .search-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.2rem;
+      padding: 1.25rem 1.3rem;
+    }
+    .card-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.15rem;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.85rem;
+    }
+    .search-row { display: flex; gap: 0.5rem; }
+    .search-row input {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--dark);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      padding: 0.55rem 0.9rem;
+      transition: border-color 0.18s;
+    }
+    .search-row input:focus { border-color: var(--rose); }
+    .search-row input::placeholder { color: var(--border); }
+    .search-row button {
+      background: var(--rose);
+      border: none;
+      border-radius: 8px;
+      color: var(--white);
+      cursor: pointer;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 0.55rem 1.3rem;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    .search-row button:hover { background: var(--rose-deep); }
+
+    #search-result { margin-top: 1rem; }
+    .order-card {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-top: 0.6rem;
+      padding: 1rem 1.1rem;
+    }
+    .order-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+    .order-code {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--rose);
+    }
+    .order-cliente { font-size: 0.88rem; color: var(--muted); margin-top: 0.1rem; }
+    .order-store {
+      background: var(--rose);
+      border-radius: 12px;
+      color: var(--white);
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.22rem 0.75rem;
+      text-transform: uppercase;
+    }
+    .order-fields {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem 1rem;
+    }
+    @media (min-width: 480px) { .order-fields { grid-template-columns: repeat(3, 1fr); } }
+    .field-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .field-value { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
+    .not-found {
+      color: var(--muted);
+      font-style: italic;
+      padding: 0.6rem 0;
+      text-align: center;
+    }
+
+    /* ── CHARTS GRID ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 768px) {
+      .charts-grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-wide  { grid-column: 1 / -1; }
+    }
+    .chart-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1.2rem 1.3rem 1rem;
+    }
+    .chart-wrap          { position: relative; height: 260px; }
+    .chart-wrap.tall     { height: 330px; }
+    .chart-wrap.donut    { height: 300px; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      padding: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Panel de Ventas · 2026</div>
+  <h1>QuinceDresses</h1>
+  <div class="header-tagline">Quince Couture Boutique &nbsp;·&nbsp; NJ &nbsp;·&nbsp; VA &nbsp;·&nbsp; CT &nbsp;·&nbsp; NY</div>
+</header>
+
+<main>
+  <div id="error-banner"></div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    Cargando datos de las cuatro tiendas…
+  </div>
+
+  <div id="dashboard" style="display:none">
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-store="ALL">Todas</button>
+      <button class="filter-btn" data-store="NJ">NJ</button>
+      <button class="filter-btn" data-store="VA">VA</button>
+      <button class="filter-btn" data-store="CT">CT</button>
+      <button class="filter-btn" data-store="NY">NY</button>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total Pedidos</div>
+        <div class="metric-value" id="m-total">—</div>
+        <div class="metric-sub"  id="m-total-sub">&nbsp;</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Estilo Top</div>
+        <div class="metric-value sm" id="m-estilo">—</div>
+        <div class="metric-sub"     id="m-estilo-sub">&nbsp;</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Color Top</div>
+        <div class="metric-value sm" id="m-color">—</div>
+        <div class="metric-sub"      id="m-color-sub">&nbsp;</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Meses con Datos</div>
+        <div class="metric-value" id="m-meses">—</div>
+        <div class="metric-sub"   id="m-meses-sub">&nbsp;</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-card">
+      <div class="card-eyebrow">Búsqueda</div>
+      <div class="card-title">Consultar pedido por código</div>
+      <div class="search-row">
+        <input type="text" id="search-input"
+          placeholder="Ej: SO2472 &nbsp;·&nbsp; 215581 &nbsp;·&nbsp; 616 &nbsp;·&nbsp; 25140" />
+        <button id="search-btn">Buscar</button>
+      </div>
+      <div id="search-result"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+
+      <div class="chart-card chart-wide">
+        <div class="card-eyebrow">Tendencia</div>
+        <div class="card-title">Pedidos por mes (Fecha de orden)</div>
+        <div class="chart-wrap">
+          <canvas id="chart-month"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-eyebrow">Ranking</div>
+        <div class="card-title">Estilos más pedidos</div>
+        <div class="chart-wrap tall">
+          <canvas id="chart-styles"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-eyebrow">Ranking</div>
+        <div class="card-title">Marcas / Compañías</div>
+        <div class="chart-wrap tall">
+          <canvas id="chart-brands"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card chart-wide">
+        <div class="card-eyebrow">Distribución</div>
+        <div class="card-title">Colores más vendidos</div>
+        <div class="chart-wrap donut">
+          <canvas id="chart-colors"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /dashboard -->
+</main>
+
+<footer>
+  QuinceDresses &copy; 2026 &nbsp;·&nbsp;
+  Todos los datos se procesan localmente en el navegador — ningún CSV sale de este dispositivo.
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURACIÓN
+// ─────────────────────────────────────────────────────────────────────────────
+const STORES = [
+  { id: 'NJ', file: 'Master QuinceCouture - NJ.csv' },
+  { id: 'VA', file: 'Master QuinceCouture - VA.csv' },
+  { id: 'CT', file: 'Master QuinceCouture - CT.csv' },
+  { id: 'NY', file: 'Master QuinceCouture - NY.csv' },
+];
+
+// Color palette: rose / gold / teal / navy / purple …
+const PALETTE = [
+  '#8b1a4a','#c9974a','#3d7a6b','#2d5fa3','#7a4a9b',
+  '#c4496a','#4a7c59','#b5631a','#1a5a8b','#6b4a8b',
+  '#c42860','#4a6b9b','#8b4513','#3d6b3d','#9b3d1a',
+  '#5c9b3d','#1a8b7a','#9b1a6a','#6a9b1a','#3d1a9b',
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARSEO DE FECHAS
+// Soporta: MM/DD/YYYY (NY) y "Enero 03, 2026" / "Enero 7,2026" (CT/NJ/VA)
+// ─────────────────────────────────────────────────────────────────────────────
+const MES_MAP = {
+  'enero':0, 'febrero':1, 'febero':1, 'febereo':1,
+  'marzo':2, 'abril':3, 'mayo':4, 'junio':5, 'julio':6,
+  'agosto':7, 'agosoto':7, 'augusto':7,
+  'septiembre':8, 'septembire':8,
+  'octubre':9, 'noviembre':10,
+  'diciembre':11, 'deciembre':11,
+};
+
+function parseFechaOrden(s) {
+  if (!s) return null;
+  s = s.trim().replace(/\s+/g, ' ');
+
+  // MM/DD/YYYY or MM/DD/YYYYY (NY — catches typo 20026)
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4,5})$/);
+  if (m) {
+    let y = parseInt(m[3], 10);
+    // Fix 5-digit year typos: "20026" → 2026  (replace doubled leading digit)
+    if (y > 2099) y = parseInt(String(m[3]).replace(/^20(\d{3})$/, '2$1'), 10) || y;
+    const d = new Date(y, parseInt(m[1], 10) - 1, parseInt(m[2], 10));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // "Enero 03, 2026" / "Enero 7,2026" / "Enero 7, 2026"
+  m = s.match(/^([A-Za-záéíóúñü]+)\s+(\d{1,2}),?\s*(\d{4})$/i);
+  if (m) {
+    const mes = MES_MAP[m[1].toLowerCase()];
+    if (mes !== undefined) {
+      const d = new Date(parseInt(m[3], 10), mes, parseInt(m[2], 10));
+      return isNaN(d.getTime()) ? null : d;
+    }
+  }
+
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NORMALIZACIÓN DE COMPAÑÍA
+// ─────────────────────────────────────────────────────────────────────────────
+function normalizeCompania(s) {
+  if (!s) return '';
+  s = s.trim();
+  if (/quince\s*couture/i.test(s))              return 'Quince Couture';
+  if (/house\s*of\s*wu|^how\b|^h\.o\.w\b/i.test(s)) return 'House of Wu';
+  if (/rachel{1,2}\s*all?an?/i.test(s))         return 'Rachel Allan';
+  if (/mori\s*lee|morilee/i.test(s))            return 'Morilee';
+  if (/ragazza/i.test(s))                       return 'Ragazza';
+  if (/amabella/i.test(s))                      return 'Amabella';
+  if (/princesa/i.test(s))                      return 'Princesa';
+  if (/dancing\s*queen/i.test(s))               return 'Dancing Queen';
+  if (/bella\s*couture/i.test(s))               return 'Bella Couture';
+  if (/shankara/i.test(s))                      return 'Shankara';
+  if (/fiesta/i.test(s))                        return 'HOW Fiesta';
+  if (/juliet/i.test(s))                        return 'Juliet';
+  if (/accesri?o/i.test(s))                     return ''; // skip accessories
+  return s;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NORMALIZACIÓN DE ESTILO
+// Elimina espacios en códigos tipo "QC 5501" → "QC5501", "PR 30228" → "PR30228"
+// ─────────────────────────────────────────────────────────────────────────────
+function normalizeEstilo(s) {
+  if (!s) return '';
+  return s.trim()
+    // "QC 5501" → "QC5501", "PR 30228" → "PR30228", "Q 1080" → "Q1080"
+    .replace(/^(QC|QA|PR|RQ|EV|MV|BM|AQ|OM)\s+(\d)/i, (_, p, d) => p.toUpperCase() + d)
+    .replace(/^Q\s+(\d)/i, (_, d) => 'Q' + d);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DETECCIÓN DE FILAS BASURA
+// ─────────────────────────────────────────────────────────────────────────────
+function isJunkRow(raw) {
+  const cliente = (raw['CLIENTE'] || '').trim();
+  const fecha   = (raw['FECHA DE ORDEN'] || '').trim();
+  const code    = (raw['Code'] || '').trim();
+
+  if (!cliente && !code)                         return true;
+  if (/no\s*hay\s*orden/i.test(cliente))         return true;
+  if (/^(ORDEN|CANSELADA|NO|HAY|VOID)$/i.test(fecha)) return true;
+  if (/^\?+$/.test(fecha))                       return true;
+  // NJ accessory-only row
+  if (/^accesri?o$/i.test((raw['COMPANIA'] || '').trim())) return true;
+
+  return false;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ESTADO GLOBAL
+// ─────────────────────────────────────────────────────────────────────────────
+let allData     = [];   // todos los registros limpios
+let activeStore = 'ALL';
+const charts    = {};   // instancias Chart.js
+let   errors    = [];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CARGA DE UN CSV
+// ─────────────────────────────────────────────────────────────────────────────
+function loadStore(store) {
+  return new Promise(resolve => {
+    Papa.parse(store.file, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete({ data }) {
+        const rows = [];
+        for (const raw of data) {
+          if (isJunkRow(raw)) continue;
+          rows.push({
+            code:          (raw['Code'] || '').trim(),
+            cliente:       (raw['CLIENTE'] || '').trim(),
+            fechaOrden:    parseFechaOrden(raw['FECHA DE ORDEN']),
+            fechaOrdenRaw: (raw['FECHA DE ORDEN'] || '').trim(),
+            fechaEvento:   (raw['EVENTO'] || '').trim(),
+            compania:      normalizeCompania(raw['COMPANIA']),
+            estilo:        normalizeEstilo(raw['ESTILO']),
+            color:         (raw['COLOR'] || '').trim(),
+            size:          (raw['SIZE'] || '').trim(),
+            status:        (raw['STATUS'] || '').trim(),
+            tienda:        store.id,
+          });
+        }
+        resolve({ id: store.id, rows, error: null });
+      },
+      error(err) {
+        resolve({ id: store.id, rows: [], error: err.message || 'Error desconocido' });
+      },
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS DE AGREGACIÓN
+// ─────────────────────────────────────────────────────────────────────────────
+function getFiltered() {
+  return activeStore === 'ALL' ? allData : allData.filter(r => r.tienda === activeStore);
+}
+
+// Devuelve [['valor', count], ...] ordenado desc, top N
+function countTop(arr, key, n = 12) {
+  const map = {};
+  for (const r of arr) {
+    const v = (r[key] || '').trim();
+    if (!v || v === '-' || /^[?]+$/.test(v) || /^n\/a$/i.test(v)) continue;
+    map[v] = (map[v] || 0) + 1;
+  }
+  return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, n);
+}
+
+// Agrupa por mes de fechaOrden, devuelve {labels, data} ordenado
+const MES_CORTO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+function groupByMonth(arr) {
+  const map = {};
+  for (const r of arr) {
+    if (!r.fechaOrden) continue;
+    const y = r.fechaOrden.getFullYear();
+    const mo = r.fechaOrden.getMonth();
+    if (y < 2024 || y > 2027) continue; // descartar fechas claramente erróneas
+    const key = `${y}-${String(mo + 1).padStart(2, '0')}`;
+    map[key] = (map[key] || 0) + 1;
+  }
+  const sorted = Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+  return {
+    labels: sorted.map(([k]) => {
+      const [y, mo] = k.split('-');
+      return `${MES_CORTO[parseInt(mo, 10) - 1]} ${y}`;
+    }),
+    data: sorted.map(([, v]) => v),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MÉTRICAS RESUMEN
+// ─────────────────────────────────────────────────────────────────────────────
+function updateMetrics(filtered) {
+  document.getElementById('m-total').textContent   = filtered.length.toLocaleString('es');
+  document.getElementById('m-total-sub').textContent =
+    activeStore === 'ALL' ? '4 tiendas' : `Tienda ${activeStore}`;
+
+  const te = countTop(filtered, 'estilo', 1);
+  document.getElementById('m-estilo').textContent     = te.length ? te[0][0] : '—';
+  document.getElementById('m-estilo-sub').textContent = te.length ? `${te[0][1]} pedidos` : '';
+
+  const tc = countTop(filtered, 'color', 1);
+  document.getElementById('m-color').textContent     = tc.length ? tc[0][0] : '—';
+  document.getElementById('m-color-sub').textContent = tc.length ? `${tc[0][1]} pedidos` : '';
+
+  const { labels } = groupByMonth(filtered);
+  document.getElementById('m-meses').textContent = labels.length;
+  document.getElementById('m-meses-sub').textContent =
+    labels.length ? `${labels[0]} – ${labels[labels.length - 1]}` : '';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GRÁFICOS
+// ─────────────────────────────────────────────────────────────────────────────
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// Barras verticales — pedidos por mes
+function renderMonthChart(filtered) {
+  destroyChart('month');
+  const { labels, data } = groupByMonth(filtered);
+  charts['month'] = new Chart(
+    document.getElementById('chart-month').getContext('2d'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pedidos',
+          data,
+          backgroundColor: 'rgba(139,26,74,0.82)',
+          hoverBackgroundColor: 'rgba(139,26,74,1)',
+          borderRadius: 4,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f0e8dc' },
+               ticks: { precision: 0 } },
+          x: { grid: { display: false },
+               ticks: { font: { size: 11 }, maxRotation: 45 } },
+        },
+      },
+    }
+  );
+}
+
+// Barras horizontales genéricas
+function renderHBar(canvasId, pairs) {
+  destroyChart(canvasId);
+  const labels = pairs.map(p => p[0]);
+  const data   = pairs.map(p => p[1]);
+  charts[canvasId] = new Chart(
+    document.getElementById(canvasId).getContext('2d'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pedidos',
+          data,
+          backgroundColor: PALETTE.slice(0, labels.length),
+          borderRadius: 4,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, grid: { color: '#f0e8dc' },
+               ticks: { precision: 0 } },
+          y: { grid: { display: false },
+               ticks: { font: { size: 11 } } },
+        },
+      },
+    }
+  );
+}
+
+// Dona — colores
+function renderColorDonut(filtered) {
+  destroyChart('colors');
+  const pairs = countTop(filtered, 'color', 15);
+  const total = pairs.reduce((s, [, v]) => s + v, 0);
+  const labels = pairs.map(([k, v]) => `${k} (${Math.round(v / total * 100)}%)`);
+  const data   = pairs.map(([, v]) => v);
+
+  charts['colors'] = new Chart(
+    document.getElementById('chart-colors').getContext('2d'),
+    {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: PALETTE,
+          borderWidth: 2,
+          borderColor: '#faf6f1',
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '58%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              font: { size: 11 },
+              boxWidth: 14,
+              padding: 8,
+              color: '#2d1a1a',
+            },
+          },
+        },
+      },
+    }
+  );
+}
+
+// Render completo
+function renderAll() {
+  const filtered = getFiltered();
+  updateMetrics(filtered);
+  renderMonthChart(filtered);
+  renderHBar('chart-styles', countTop(filtered, 'estilo', 12));
+  renderHBar('chart-brands', countTop(filtered, 'compania', 10));
+  renderColorDonut(filtered);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BÚSQUEDA DE PEDIDO
+// ─────────────────────────────────────────────────────────────────────────────
+function doSearch() {
+  const q   = (document.getElementById('search-input').value || '').trim();
+  const div = document.getElementById('search-result');
+  if (!q) { div.innerHTML = ''; return; }
+
+  // Búsqueda insensible a mayúsculas/minúsculas sobre TODOS los datos
+  const matches = allData.filter(r => r.code.toLowerCase() === q.toLowerCase());
+
+  if (!matches.length) {
+    div.innerHTML = `<div class="not-found">
+      No se encontró ningún pedido con el código <strong>${escHtml(q)}</strong>.
+    </div>`;
+    return;
+  }
+
+  div.innerHTML = matches.map(r => `
+    <div class="order-card">
+      <div class="order-header">
+        <div>
+          <div class="order-code">#${escHtml(r.code)}</div>
+          <div class="order-cliente">${escHtml(r.cliente)}</div>
+        </div>
+        <span class="order-store">${escHtml(r.tienda)}</span>
+      </div>
+      <div class="order-fields">
+        <div>
+          <div class="field-label">Fecha Orden</div>
+          <div class="field-value">${escHtml(r.fechaOrdenRaw) || '—'}</div>
+        </div>
+        <div>
+          <div class="field-label">Fecha Evento</div>
+          <div class="field-value">${escHtml(r.fechaEvento) || '—'}</div>
+        </div>
+        <div>
+          <div class="field-label">Marca</div>
+          <div class="field-value">${escHtml(r.compania) || '—'}</div>
+        </div>
+        <div>
+          <div class="field-label">Estilo</div>
+          <div class="field-value">${escHtml(r.estilo) || '—'}</div>
+        </div>
+        <div>
+          <div class="field-label">Color</div>
+          <div class="field-value">${escHtml(r.color) || '—'}</div>
+        </div>
+        <div>
+          <div class="field-label">Talla</div>
+          <div class="field-value">${escHtml(r.size) || '—'}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INICIALIZACIÓN
+// ─────────────────────────────────────────────────────────────────────────────
+async function init() {
+  const results = await Promise.all(STORES.map(loadStore));
+
+  errors = results.filter(r => r.error).map(r => `${r.id}: ${r.error}`);
+  for (const { rows } of results) allData.push(...rows);
+
+  document.getElementById('loading').style.display = 'none';
+
+  if (errors.length) {
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'block';
+    banner.innerHTML = `⚠️ Error al cargar: <strong>${errors.join(' &nbsp;·&nbsp; ')}</strong>
+      — los datos de las demás tiendas sí se muestran.`;
+  }
+
+  if (allData.length === 0) {
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'block';
+    banner.innerHTML = `❌ No se pudo cargar ningún archivo CSV.
+      Asegúrate de abrir la página con un servidor local:
+      <code>python3 -m http.server</code> y visitar
+      <code>http://localhost:8000</code>`;
+    return;
+  }
+
+  document.getElementById('dashboard').style.display = 'block';
+  renderAll();
+
+  // Filtros
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeStore = btn.dataset.store;
+      renderAll();
+    });
+  });
+
+  // Búsqueda
+  document.getElementById('search-btn').addEventListener('click', doSearch);
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
