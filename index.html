@@ -452,11 +452,19 @@
         </div>
       </div>
 
-      <div class="chart-card chart-wide">
+      <div class="chart-card">
         <div class="card-eyebrow">Distribución</div>
         <div class="card-title">Colores más vendidos</div>
         <div class="chart-wrap donut">
           <canvas id="chart-colors"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-eyebrow">Distribución</div>
+        <div class="card-title">Marcas / Compañías</div>
+        <div class="chart-wrap donut">
+          <canvas id="chart-brands-donut"></canvas>
         </div>
       </div>
 
@@ -795,16 +803,17 @@ function renderHBar(canvasId, pairs) {
   );
 }
 
-// Dona — colores
-function renderColorDonut(filtered) {
-  destroyChart('colors');
-  const pairs = countTop(filtered, 'color', 15);
-  const total = pairs.reduce((s, [, v]) => s + v, 0);
+// Dona genérica — canvasId, datos, campo a contar, top N
+function renderDonut(canvasId, filtered, key, n = 15) {
+  destroyChart(canvasId);
+  const pairs  = countTop(filtered, key, n);
+  if (!pairs.length) return;
+  const total  = pairs.reduce((s, [, v]) => s + v, 0);
   const labels = pairs.map(([k, v]) => `${k} (${Math.round(v / total * 100)}%)`);
   const data   = pairs.map(([, v]) => v);
 
-  charts['colors'] = new Chart(
-    document.getElementById('chart-colors').getContext('2d'),
+  charts[canvasId] = new Chart(
+    document.getElementById(canvasId).getContext('2d'),
     {
       type: 'doughnut',
       data: {
@@ -844,7 +853,8 @@ function renderAll() {
   renderMonthChart();               // usa getFilteredByStore() internamente
   renderHBar('chart-styles', countTop(filtered, 'estilo', 12));
   renderHBar('chart-brands', countTop(filtered, 'compania', 10));
-  renderColorDonut(filtered);
+  renderDonut('chart-colors',       filtered, 'color',    15);
+  renderDonut('chart-brands-donut', filtered, 'compania', 12);
 }
 
 // Poblar el selector de mes con los meses disponibles en todos los datos
