@@ -126,6 +126,58 @@
       color: var(--white);
     }
 
+    /* ── MONTH SELECT ── */
+    .month-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .month-filter label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .month-filter select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a6060' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      color: var(--dark);
+      cursor: pointer;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      outline: none;
+      padding: 0.42rem 2.2rem 0.42rem 1.1rem;
+      transition: border-color 0.18s, color 0.18s;
+    }
+    .month-filter select:focus,
+    .month-filter select:hover { border-color: var(--rose); color: var(--rose); }
+    .month-filter select.has-value {
+      background-color: var(--rose);
+      border-color: var(--rose);
+      color: var(--white);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='white' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    }
+    .month-filter .clear-month {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.78rem;
+      padding: 0.3rem 0.2rem;
+      text-decoration: underline;
+      display: none;
+    }
+    .month-filter .clear-month.visible { display: inline; }
+
     /* ── METRICS GRID ── */
     .metrics-grid {
       display: grid;
@@ -321,13 +373,20 @@
 
   <div id="dashboard" style="display:none">
 
-    <!-- Filter -->
+    <!-- Filtros -->
     <div class="filter-bar">
       <button class="filter-btn active" data-store="ALL">Todas</button>
       <button class="filter-btn" data-store="NJ">NJ</button>
       <button class="filter-btn" data-store="VA">VA</button>
       <button class="filter-btn" data-store="CT">CT</button>
       <button class="filter-btn" data-store="NY">NY</button>
+    </div>
+    <div class="month-filter">
+      <label>Mes</label>
+      <select id="month-select">
+        <option value="">Todos los meses</option>
+      </select>
+      <button class="clear-month" id="clear-month">✕ Limpiar</button>
     </div>
 
     <!-- Metrics -->
@@ -526,6 +585,7 @@ function isJunkRow(raw) {
 // ─────────────────────────────────────────────────────────────────────────────
 let allData     = [];   // todos los registros limpios
 let activeStore = 'ALL';
+let activeMonth = null; // null = todos | '2026-01' = enero 2026
 const charts    = {};   // instancias Chart.js
 let   errors    = [];
 
@@ -554,6 +614,13 @@ function loadStore(store) {
             size:          (raw['SIZE'] || '').trim(),
             status:        (raw['STATUS'] || '').trim(),
             tienda:        store.id,
+            monthKey:      (() => {
+              const fd = parseFechaOrden(raw['FECHA DE ORDEN']);
+              if (!fd) return null;
+              const y = fd.getFullYear(), mo = fd.getMonth();
+              return (y < 2024 || y > 2027) ? null
+                : `${y}-${String(mo + 1).padStart(2, '0')}`;
+            })(),
           });
         }
         resolve({ id: store.id, rows, error: null });
@@ -568,7 +635,15 @@ function loadStore(store) {
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS DE AGREGACIÓN
 // ─────────────────────────────────────────────────────────────────────────────
+// Filtra por tienda + mes (para rankings y métricas)
 function getFiltered() {
+  let data = activeStore === 'ALL' ? allData : allData.filter(r => r.tienda === activeStore);
+  if (activeMonth) data = data.filter(r => r.monthKey === activeMonth);
+  return data;
+}
+
+// Filtra solo por tienda (para el gráfico de tendencia mensual)
+function getFilteredByStore() {
   return activeStore === 'ALL' ? allData : allData.filter(r => r.tienda === activeStore);
 }
 
@@ -583,20 +658,17 @@ function countTop(arr, key, n = 12) {
   return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, n);
 }
 
-// Agrupa por mes de fechaOrden, devuelve {labels, data} ordenado
+// Agrupa por mes de fechaOrden, devuelve {labels, data, keys} ordenado
 const MES_CORTO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 function groupByMonth(arr) {
   const map = {};
   for (const r of arr) {
-    if (!r.fechaOrden) continue;
-    const y = r.fechaOrden.getFullYear();
-    const mo = r.fechaOrden.getMonth();
-    if (y < 2024 || y > 2027) continue; // descartar fechas claramente erróneas
-    const key = `${y}-${String(mo + 1).padStart(2, '0')}`;
-    map[key] = (map[key] || 0) + 1;
+    if (!r.monthKey) continue;
+    map[r.monthKey] = (map[r.monthKey] || 0) + 1;
   }
   const sorted = Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
   return {
+    keys:   sorted.map(([k]) => k),
     labels: sorted.map(([k]) => {
       const [y, mo] = k.split('-');
       return `${MES_CORTO[parseInt(mo, 10) - 1]} ${y}`;
@@ -609,9 +681,15 @@ function groupByMonth(arr) {
 // MÉTRICAS RESUMEN
 // ─────────────────────────────────────────────────────────────────────────────
 function updateMetrics(filtered) {
-  document.getElementById('m-total').textContent   = filtered.length.toLocaleString('es');
+  document.getElementById('m-total').textContent = filtered.length.toLocaleString('es');
+
+  // Subtitle: "NJ · Mar 2026" or "4 tiendas" etc.
+  let storePart = activeStore === 'ALL' ? '4 tiendas' : `Tienda ${activeStore}`;
+  let monthPart = activeMonth
+    ? MES_CORTO[parseInt(activeMonth.split('-')[1], 10) - 1] + ' ' + activeMonth.split('-')[0]
+    : '';
   document.getElementById('m-total-sub').textContent =
-    activeStore === 'ALL' ? '4 tiendas' : `Tienda ${activeStore}`;
+    monthPart ? `${storePart} · ${monthPart}` : storePart;
 
   const te = countTop(filtered, 'estilo', 1);
   document.getElementById('m-estilo').textContent     = te.length ? te[0][0] : '—';
@@ -621,10 +699,11 @@ function updateMetrics(filtered) {
   document.getElementById('m-color').textContent     = tc.length ? tc[0][0] : '—';
   document.getElementById('m-color-sub').textContent = tc.length ? `${tc[0][1]} pedidos` : '';
 
-  const { labels } = groupByMonth(filtered);
-  document.getElementById('m-meses').textContent = labels.length;
+  // "Meses con datos" muestra el rango del filtro de tienda (sin filtro de mes)
+  const { labels: storeLabels } = groupByMonth(getFilteredByStore());
+  document.getElementById('m-meses').textContent = storeLabels.length;
   document.getElementById('m-meses-sub').textContent =
-    labels.length ? `${labels[0]} – ${labels[labels.length - 1]}` : '';
+    storeLabels.length ? `${storeLabels[0]} – ${storeLabels[storeLabels.length - 1]}` : '';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -634,10 +713,23 @@ function destroyChart(id) {
   if (charts[id]) { charts[id].destroy(); delete charts[id]; }
 }
 
-// Barras verticales — pedidos por mes
-function renderMonthChart(filtered) {
+// Barras verticales — pedidos por mes (usa solo filtro de tienda; resalta mes activo)
+function renderMonthChart() {
   destroyChart('month');
-  const { labels, data } = groupByMonth(filtered);
+  const { labels, data, keys } = groupByMonth(getFilteredByStore());
+
+  // Resaltar el mes seleccionado en dorado; el resto en rose con opacidad reducida
+  const bgColors = keys.map(k =>
+    !activeMonth || k === activeMonth
+      ? (activeMonth ? '#c9974a' : 'rgba(139,26,74,0.82)')
+      : 'rgba(139,26,74,0.22)'
+  );
+  const hoverColors = keys.map(k =>
+    !activeMonth || k === activeMonth
+      ? (activeMonth ? '#e8c98a' : 'rgba(139,26,74,1)')
+      : 'rgba(139,26,74,0.4)'
+  );
+
   charts['month'] = new Chart(
     document.getElementById('chart-month').getContext('2d'),
     {
@@ -647,8 +739,8 @@ function renderMonthChart(filtered) {
         datasets: [{
           label: 'Pedidos',
           data,
-          backgroundColor: 'rgba(139,26,74,0.82)',
-          hoverBackgroundColor: 'rgba(139,26,74,1)',
+          backgroundColor: bgColors,
+          hoverBackgroundColor: hoverColors,
           borderRadius: 4,
           borderSkipped: false,
         }],
@@ -747,12 +839,27 @@ function renderColorDonut(filtered) {
 
 // Render completo
 function renderAll() {
-  const filtered = getFiltered();
+  const filtered = getFiltered();   // tienda + mes
   updateMetrics(filtered);
-  renderMonthChart(filtered);
+  renderMonthChart();               // usa getFilteredByStore() internamente
   renderHBar('chart-styles', countTop(filtered, 'estilo', 12));
   renderHBar('chart-brands', countTop(filtered, 'compania', 10));
   renderColorDonut(filtered);
+}
+
+// Poblar el selector de mes con los meses disponibles en todos los datos
+function populateMonthSelect() {
+  const monthSet = new Set(allData.map(r => r.monthKey).filter(Boolean));
+  const sorted   = [...monthSet].sort();
+  const sel      = document.getElementById('month-select');
+  sel.innerHTML  = '<option value="">Todos los meses</option>';
+  for (const mk of sorted) {
+    const [y, mo] = mk.split('-');
+    const opt = document.createElement('option');
+    opt.value       = mk;
+    opt.textContent = `${MES_CORTO[parseInt(mo, 10) - 1]} ${y}`;
+    sel.appendChild(opt);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -850,9 +957,10 @@ async function init() {
   }
 
   document.getElementById('dashboard').style.display = 'block';
+  populateMonthSelect();
   renderAll();
 
-  // Filtros
+  // Filtro tienda
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -860,6 +968,23 @@ async function init() {
       activeStore = btn.dataset.store;
       renderAll();
     });
+  });
+
+  // Filtro mes
+  const monthSel   = document.getElementById('month-select');
+  const clearBtn   = document.getElementById('clear-month');
+  monthSel.addEventListener('change', () => {
+    activeMonth = monthSel.value || null;
+    monthSel.classList.toggle('has-value', !!activeMonth);
+    clearBtn.classList.toggle('visible', !!activeMonth);
+    renderAll();
+  });
+  clearBtn.addEventListener('click', () => {
+    activeMonth = null;
+    monthSel.value = '';
+    monthSel.classList.remove('has-value');
+    clearBtn.classList.remove('visible');
+    renderAll();
   });
 
   // Búsqueda
