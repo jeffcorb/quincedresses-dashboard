@@ -323,6 +323,63 @@
       text-align: center;
     }
 
+    /* ── SEARCH SUGGESTIONS ── */
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+    .search-input-wrap input { width: 100%; }
+    .search-suggestions {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-hover);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .suggestion-item {
+      padding: 0.52rem 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.87rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover, .suggestion-item.kbd-active { background: var(--cream); }
+    .suggestion-code { font-weight: 700; color: var(--rose); white-space: nowrap; }
+    .suggestion-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .suggestion-store {
+      background: var(--rose);
+      color: var(--white);
+      border-radius: 8px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.1rem 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* ── NOTAS en order-card ── */
+    .order-notas {
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border);
+    }
+    .order-notas .field-label { margin-bottom: 0.18rem; }
+    .order-notas .field-value { font-size: 0.85rem; font-weight: 400; color: var(--dark); }
+
     /* ── CHARTS GRID ── */
     .charts-grid {
       display: grid;
@@ -418,8 +475,11 @@
       <div class="card-eyebrow">Búsqueda</div>
       <div class="card-title">Consultar pedido por código</div>
       <div class="search-row">
-        <input type="text" id="search-input"
-          placeholder="Ej: SO2472 &nbsp;·&nbsp; 215581 &nbsp;·&nbsp; 616 &nbsp;·&nbsp; 25140" />
+        <div class="search-input-wrap">
+          <input type="text" id="search-input" autocomplete="off"
+            placeholder="Ej: SO2472 · 215581 · 616 · 25140 — o solo el número" />
+          <div class="search-suggestions" id="search-suggestions" style="display:none"></div>
+        </div>
         <button id="search-btn">Buscar</button>
       </div>
       <div id="search-result"></div>
@@ -563,19 +623,28 @@ function normalizeEstilo(s) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// HELPER: lee el primer campo que exista en raw (ignora undefined/null)
+// ─────────────────────────────────────────────────────────────────────────────
+function getField(raw, ...keys) {
+  for (const k of keys) {
+    if (raw[k] !== undefined && raw[k] !== null) return String(raw[k]).trim();
+  }
+  return '';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DETECCIÓN DE FILAS BASURA
 // ─────────────────────────────────────────────────────────────────────────────
 function isJunkRow(raw) {
-  const cliente = (raw['CLIENTE'] || '').trim();
-  const fecha   = (raw['FECHA DE ORDEN'] || '').trim();
-  const code    = (raw['Code'] || '').trim();
+  const cliente = getField(raw, 'CLIENTE', 'NOMBRE', 'Nombre');
+  const fecha   = getField(raw, 'FECHA DE ORDEN', 'FECHA ORDEN', 'Fecha Orden');
+  const code    = getField(raw, 'Orden', 'Code', 'ORDEN');
 
-  if (!cliente && !code)                         return true;
-  if (/no\s*hay\s*orden/i.test(cliente))         return true;
+  if (!cliente && !code)                              return true;
+  if (/no\s*hay\s*orden/i.test(cliente))              return true;
   if (/^(ORDEN|CANSELADA|NO|HAY|VOID)$/i.test(fecha)) return true;
-  if (/^\?+$/.test(fecha))                       return true;
-  // NJ accessory-only row
-  if (/^accesri?o$/i.test((raw['COMPANIA'] || '').trim())) return true;
+  if (/^\?+$/.test(fecha))                            return true;
+  if (/^accesri?o$/i.test(getField(raw, 'COMPANIA', 'Compania'))) return true;
 
   return false;
 }
@@ -602,20 +671,22 @@ function loadStore(store) {
         const rows = [];
         for (const raw of data) {
           if (isJunkRow(raw)) continue;
+          const fechaOrdenRaw = getField(raw, 'FECHA DE ORDEN', 'FECHA ORDEN', 'Fecha Orden');
+          const fd = parseFechaOrden(fechaOrdenRaw);
           rows.push({
-            code:          (raw['Code'] || '').trim(),
-            cliente:       (raw['CLIENTE'] || '').trim(),
-            fechaOrden:    parseFechaOrden(raw['FECHA DE ORDEN']),
-            fechaOrdenRaw: (raw['FECHA DE ORDEN'] || '').trim(),
-            fechaEvento:   (raw['EVENTO'] || '').trim(),
-            compania:      normalizeCompania(raw['COMPANIA']),
-            estilo:        normalizeEstilo(raw['ESTILO']),
-            color:         (raw['COLOR'] || '').trim(),
-            size:          (raw['SIZE'] || '').trim(),
-            status:        (raw['STATUS'] || '').trim(),
+            code:          getField(raw, 'Orden', 'Code', 'ORDEN'),
+            cliente:       getField(raw, 'CLIENTE', 'NOMBRE', 'Nombre'),
+            fechaOrden:    fd,
+            fechaOrdenRaw,
+            fechaEvento:   getField(raw, 'EVENTO', 'FECHA ENTREGA', 'Fecha Entrega', 'Fecha Evento'),
+            compania:      normalizeCompania(getField(raw, 'COMPANIA', 'Compania')),
+            estilo:        normalizeEstilo(getField(raw, 'ESTILO', 'Estilo')),
+            color:         getField(raw, 'COLOR', 'Color'),
+            size:          getField(raw, 'SIZE', 'Size'),
+            status:        getField(raw, 'STATUS', 'STATUS ORDEN', 'Status'),
+            notas:         getField(raw, 'NOTAS ', 'NOTAS', 'Notas', 'Notas/Detalles'),
             tienda:        store.id,
             monthKey:      (() => {
-              const fd = parseFechaOrden(raw['FECHA DE ORDEN']);
               if (!fd) return null;
               const y = fd.getFullYear(), mo = fd.getMonth();
               return (y < 2024 || y > 2027) ? null
@@ -864,24 +935,24 @@ function populateMonthSelect() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// BÚSQUEDA DE PEDIDO
+// BÚSQUEDA DE PEDIDO  (coincidencia parcial insensible a mayúsculas)
 // ─────────────────────────────────────────────────────────────────────────────
-function doSearch() {
-  const q   = (document.getElementById('search-input').value || '').trim();
-  const div = document.getElementById('search-result');
-  if (!q) { div.innerHTML = ''; return; }
 
-  // Búsqueda insensible a mayúsculas/minúsculas sobre TODOS los datos
-  const matches = allData.filter(r => r.code.toLowerCase() === q.toLowerCase());
+// Normaliza un código para comparar: quita SO#, #, espacios → solo alfanumérico
+function normalizeCode(s) { return String(s).replace(/[^a-z0-9]/gi, '').toLowerCase(); }
 
-  if (!matches.length) {
-    div.innerHTML = `<div class="not-found">
-      No se encontró ningún pedido con el código <strong>${escHtml(q)}</strong>.
-    </div>`;
-    return;
-  }
+function codeMatches(code, q) {
+  const cL = code.toLowerCase(), qL = q.toLowerCase();
+  // coincidencia directa (substring)
+  if (cL.includes(qL)) return true;
+  // coincidencia solo dígitos (ej: "2826" → "SO#2826")
+  const qDigits = q.replace(/\D/g, '');
+  if (qDigits.length >= 3 && code.replace(/\D/g, '').includes(qDigits)) return true;
+  return false;
+}
 
-  div.innerHTML = matches.map(r => `
+function buildOrderCard(r) {
+  return `
     <div class="order-card">
       <div class="order-header">
         <div>
@@ -915,9 +986,89 @@ function doSearch() {
           <div class="field-label">Talla</div>
           <div class="field-value">${escHtml(r.size) || '—'}</div>
         </div>
+        <div>
+          <div class="field-label">Status</div>
+          <div class="field-value">${escHtml(r.status) || '—'}</div>
+        </div>
       </div>
+      ${r.notas ? `
+      <div class="order-notas">
+        <div class="field-label">Notas</div>
+        <div class="field-value">${escHtml(r.notas)}</div>
+      </div>` : ''}
+    </div>`;
+}
+
+function doSearch(forceQuery) {
+  const q   = forceQuery !== undefined ? forceQuery
+              : (document.getElementById('search-input').value || '').trim();
+  const div = document.getElementById('search-result');
+  hideSuggestions();
+  if (!q) { div.innerHTML = ''; return; }
+
+  if (forceQuery !== undefined) {
+    document.getElementById('search-input').value = forceQuery;
+  }
+
+  const matches = allData.filter(r => codeMatches(r.code, q));
+
+  if (!matches.length) {
+    div.innerHTML = `<div class="not-found">
+      No se encontró ningún pedido con el código <strong>${escHtml(q)}</strong>.
+    </div>`;
+    return;
+  }
+
+  div.innerHTML = matches.map(buildOrderCard).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUGERENCIAS (autocomplete)
+// ─────────────────────────────────────────────────────────────────────────────
+let suggKbdIdx = -1;
+
+function hideSuggestions() {
+  const box = document.getElementById('search-suggestions');
+  box.style.display = 'none';
+  box.innerHTML = '';
+  suggKbdIdx = -1;
+}
+
+function showSuggestions(q) {
+  const box = document.getElementById('search-suggestions');
+  if (!q || q.length < 2) { hideSuggestions(); return; }
+
+  // Deduplica por código + tienda, max 8
+  const seen = new Set();
+  const hits  = [];
+  for (const r of allData) {
+    if (!codeMatches(r.code, q)) continue;
+    const key = r.code + '|' + r.tienda;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    hits.push(r);
+    if (hits.length >= 8) break;
+  }
+
+  if (!hits.length) { hideSuggestions(); return; }
+
+  box.innerHTML = hits.map((r, i) => `
+    <div class="suggestion-item" data-idx="${i}" data-code="${escHtml(r.code)}">
+      <span class="suggestion-code">${escHtml(r.code)}</span>
+      <span class="suggestion-meta">${escHtml(r.cliente)}${r.estilo ? ' · ' + escHtml(r.estilo) : ''}</span>
+      <span class="suggestion-store">${escHtml(r.tienda)}</span>
     </div>
   `).join('');
+
+  box.querySelectorAll('.suggestion-item').forEach(el => {
+    el.addEventListener('mousedown', e => {
+      e.preventDefault(); // evita que el input pierda foco antes del click
+      doSearch(el.dataset.code);
+    });
+  });
+
+  box.style.display = 'block';
+  suggKbdIdx = -1;
 }
 
 function escHtml(s) {
@@ -989,9 +1140,40 @@ async function init() {
   });
 
   // Búsqueda
-  document.getElementById('search-btn').addEventListener('click', doSearch);
-  document.getElementById('search-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doSearch();
+  document.getElementById('search-btn').addEventListener('click', () => doSearch());
+
+  const searchInput = document.getElementById('search-input');
+
+  searchInput.addEventListener('input', () => {
+    showSuggestions(searchInput.value.trim());
+  });
+
+  searchInput.addEventListener('keydown', e => {
+    const box   = document.getElementById('search-suggestions');
+    const items = [...box.querySelectorAll('.suggestion-item')];
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      suggKbdIdx = Math.min(suggKbdIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('kbd-active', i === suggKbdIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      suggKbdIdx = Math.max(suggKbdIdx - 1, -1);
+      items.forEach((el, i) => el.classList.toggle('kbd-active', i === suggKbdIdx));
+    } else if (e.key === 'Enter') {
+      if (suggKbdIdx >= 0 && items[suggKbdIdx]) {
+        doSearch(items[suggKbdIdx].dataset.code);
+      } else {
+        doSearch();
+      }
+    } else if (e.key === 'Escape') {
+      hideSuggestions();
+    }
+  });
+
+  searchInput.addEventListener('blur', () => {
+    // pequeño delay para que el mousedown de suggestion-item se ejecute primero
+    setTimeout(hideSuggestions, 150);
   });
 }
 
