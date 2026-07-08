@@ -1000,17 +1000,20 @@ function buildOrderCard(r) {
 }
 
 function doSearch(forceQuery) {
-  const q   = forceQuery !== undefined ? forceQuery
-              : (document.getElementById('search-input').value || '').trim();
-  const div = document.getElementById('search-result');
+  const exact = forceQuery !== undefined;
+  const q     = exact ? forceQuery
+                      : (document.getElementById('search-input').value || '').trim();
+  const div   = document.getElementById('search-result');
   hideSuggestions();
   if (!q) { div.innerHTML = ''; return; }
 
-  if (forceQuery !== undefined) {
-    document.getElementById('search-input').value = forceQuery;
-  }
+  if (exact) document.getElementById('search-input').value = forceQuery;
 
-  const matches = allData.filter(r => codeMatches(r.code, q));
+  // Si viene de una sugerencia → coincidencia exacta de código
+  // Si viene del buscador libre  → coincidencia parcial
+  const matches = exact
+    ? allData.filter(r => r.code.toLowerCase() === q.toLowerCase())
+    : allData.filter(r => codeMatches(r.code, q));
 
   if (!matches.length) {
     div.innerHTML = `<div class="not-found">
