@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rachel Allan · Reporte por Tienda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:        #faf6f1;
+      --cream-dark:   #f0e8dc;
+      --rose:         #8b1a4a;
+      --rose-deep:    #6d1338;
+      --rose-light:   #c4698a;
+      --gold:         #c9974a;
+      --gold-light:   #e8c98a;
+      --dark:         #2d1a1a;
+      --muted:        #7a6060;
+      --border:       #e4d0c4;
+      --white:        #ffffff;
+      --shadow:       0 2px 12px rgba(45,26,26,0.07);
+      --shadow-hover: 0 4px 20px rgba(45,26,26,0.14);
+
+      /* colores por tienda */
+      --nj: #8b1a4a;
+      --va: #2d5fa3;
+      --ct: #3d7a6b;
+      --ny: #c9974a;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: 'Lato', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--rose);
+      color: var(--white);
+      padding: 2rem 1.5rem 1.6rem;
+      text-align: center;
+      position: relative;
+    }
+    .back-link {
+      position: absolute;
+      left: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.75);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.18s;
+    }
+    .back-link:hover { color: var(--gold-light); }
+    .back-link::before { content: '← '; }
+    .header-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 0.4rem;
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1.1;
+    }
+    .header-tagline {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 0.35rem;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    /* ── ERROR / LOADING ── */
+    #error-banner {
+      display: none;
+      background: #fff5f5;
+      border: 1px solid #f5c2c7;
+      border-radius: 8px;
+      color: #842029;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+    }
+    #loading {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--muted);
+    }
+    #loading .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--rose);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MÉTRICAS ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.4rem;
+    }
+    @media (min-width: 600px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .metric-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1rem 1.1rem;
+      border-top: 3px solid var(--accent, var(--rose));
+    }
+    .metric-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .metric-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent, var(--rose));
+      line-height: 1.1;
+    }
+    .metric-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.18rem;
+    }
+
+    /* ── CARDS ── */
+    .card-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.15rem;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.9rem;
+    }
+
+    /* ── GRÁFICO COMPARATIVO ── */
+    .chart-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1.2rem 1.3rem 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .chart-wrap { position: relative; height: 260px; }
+    .chart-wrap.tall { height: 310px; }
+
+    /* ── GRID 4 TIENDAS ── */
+    .stores-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 640px)  { .stores-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .stores-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .store-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1.1rem 1.2rem 0.9rem;
+      border-top: 4px solid var(--store-color, var(--rose));
+    }
+    .store-badge {
+      display: inline-block;
+      background: var(--store-color, var(--rose));
+      color: var(--white);
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.18rem 0.65rem;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+    }
+    .store-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.98rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .store-chart-wrap { position: relative; height: 260px; }
+    .no-data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.88rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      padding: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="index.html">Dashboard</a>
+  <div class="header-eyebrow">Reporte de Marca · 2026</div>
+  <h1>Rachel Allan</h1>
+  <div class="header-tagline">Estilos vendidos por tienda &nbsp;·&nbsp; NJ &nbsp;·&nbsp; VA &nbsp;·&nbsp; CT &nbsp;·&nbsp; NY</div>
+</header>
+
+<main>
+  <div id="error-banner"></div>
+  <div id="loading">
+    <div class="spinner"></div>
+    Cargando datos de las cuatro tiendas…
+  </div>
+
+  <div id="dashboard" style="display:none">
+
+    <!-- Métricas -->
+    <div class="metrics-grid">
+      <div class="metric-card" style="--accent: var(--nj)">
+        <div class="metric-label">New Jersey</div>
+        <div class="metric-value" id="m-nj">—</div>
+        <div class="metric-sub">pedidos RA</div>
+      </div>
+      <div class="metric-card" style="--accent: var(--va)">
+        <div class="metric-label">Virginia</div>
+        <div class="metric-value" id="m-va">—</div>
+        <div class="metric-sub">pedidos RA</div>
+      </div>
+      <div class="metric-card" style="--accent: var(--ct)">
+        <div class="metric-label">Connecticut</div>
+        <div class="metric-value" id="m-ct">—</div>
+        <div class="metric-sub">pedidos RA</div>
+      </div>
+      <div class="metric-card" style="--accent: var(--ny)">
+        <div class="metric-label">New York</div>
+        <div class="metric-value" id="m-ny">—</div>
+        <div class="metric-sub">pedidos RA</div>
+      </div>
+    </div>
+
+    <!-- Gráfico comparativo por tienda -->
+    <div class="chart-card">
+      <div class="card-eyebrow">Comparativo</div>
+      <div class="card-title">Rachel Allan — pedidos totales por tienda</div>
+      <div class="chart-wrap">
+        <canvas id="chart-stores"></canvas>
+      </div>
+    </div>
+
+    <!-- 4 gráficos — estilos por tienda -->
+    <div class="stores-grid">
+
+      <div class="store-card" style="--store-color: var(--nj)">
+        <div class="store-badge">NJ</div>
+        <div class="store-title">New Jersey · Estilos Rachel Allan</div>
+        <div class="store-chart-wrap" id="wrap-nj">
+          <canvas id="chart-nj"></canvas>
+        </div>
+      </div>
+
+      <div class="store-card" style="--store-color: var(--ny)">
+        <div class="store-badge">NY</div>
+        <div class="store-title">New York · Estilos Rachel Allan</div>
+        <div class="store-chart-wrap" id="wrap-ny">
+          <canvas id="chart-ny"></canvas>
+        </div>
+      </div>
+
+      <div class="store-card" style="--store-color: var(--ct)">
+        <div class="store-badge">CT</div>
+        <div class="store-title">Connecticut · Estilos Rachel Allan</div>
+        <div class="store-chart-wrap" id="wrap-ct">
+          <canvas id="chart-ct"></canvas>
+        </div>
+      </div>
+
+      <div class="store-card" style="--store-color: var(--va)">
+        <div class="store-badge">VA</div>
+        <div class="store-title">Virginia · Estilos Rachel Allan</div>
+        <div class="store-chart-wrap" id="wrap-va">
+          <canvas id="chart-va"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /dashboard -->
+</main>
+
+<footer>
+  QuinceDresses &copy; 2026 &nbsp;·&nbsp;
+  Todos los datos se procesan localmente en el navegador — ningún CSV sale de este dispositivo.
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────────────────────
+const STORES = [
+  { id: 'NJ', file: 'Master QuinceCouture - NJ.csv' },
+  { id: 'VA', file: 'Master QuinceCouture - VA.csv' },
+  { id: 'CT', file: 'Master QuinceCouture - CT.csv' },
+  { id: 'NY', file: 'Master QuinceCouture - NY.csv' },
+];
+
+const STORE_COLORS = {
+  NJ: '#8b1a4a',
+  VA: '#2d5fa3',
+  CT: '#3d7a6b',
+  NY: '#c9974a',
+};
+
+const PALETTE = [
+  '#8b1a4a','#c9974a','#3d7a6b','#2d5fa3','#7a4a9b',
+  '#c4496a','#4a7c59','#b5631a','#1a5a8b','#6b4a8b',
+  '#c42860','#4a6b9b','#8b4513','#3d6b3d','#9b3d1a',
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function getField(raw, ...keys) {
+  for (const k of keys) {
+    if (raw[k] !== undefined && raw[k] !== null) return String(raw[k]).trim();
+  }
+  return '';
+}
+
+function isRachelAllan(s) {
+  return /rachel{1,2}\s*all?an?/i.test(s);
+}
+
+function normalizeEstilo(s) {
+  if (!s) return '';
+  return s.trim()
+    .replace(/\s+/g, ' ')
+    .replace(/^(RQ|QC|QA|PR|EV|MV|BM|AQ|OM)\s+(\d)/i, (_, p, d) => p.toUpperCase() + d)
+    .replace(/^Q\s+(\d)/i, (_, d) => 'Q' + d);
+}
+
+function isJunkRow(raw) {
+  const cliente = getField(raw, 'CLIENTE', 'NOMBRE', 'Nombre');
+  const code    = getField(raw, 'Orden', 'Code', 'ORDEN');
+  if (!cliente && !code) return true;
+  return false;
+}
+
+function countTop(arr, key, n = 15) {
+  const map = {};
+  for (const r of arr) {
+    const v = (r[key] || '').trim();
+    if (!v || v === '-' || /^[?]+$/.test(v)) continue;
+    map[v] = (map[v] || 0) + 1;
+  }
+  return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, n);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CARGA DE CSV
+// ─────────────────────────────────────────────────────────────────────────────
+function loadStore(store) {
+  return new Promise(resolve => {
+    Papa.parse(store.file, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete({ data }) {
+        const rows = [];
+        for (const raw of data) {
+          if (isJunkRow(raw)) continue;
+          const compania = getField(raw, 'COMPANIA', 'Compania');
+          if (!isRachelAllan(compania)) continue;
+          rows.push({
+            estilo:  normalizeEstilo(getField(raw, 'ESTILO', 'Estilo')),
+            tienda:  store.id,
+          });
+        }
+        resolve({ id: store.id, rows, error: null });
+      },
+      error(err) {
+        resolve({ id: store.id, rows: [], error: err.message || 'Error desconocido' });
+      },
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GRÁFICOS
+// ─────────────────────────────────────────────────────────────────────────────
+const charts = {};
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// Barras verticales — comparativo por tienda
+function renderStoreBar(byStore) {
+  destroyChart('stores');
+  const ids    = ['NJ', 'VA', 'CT', 'NY'];
+  const labels = ['New Jersey', 'Virginia', 'Connecticut', 'New York'];
+  const data   = ids.map(id => (byStore[id] || []).length);
+  const colors = ids.map(id => STORE_COLORS[id]);
+
+  charts['stores'] = new Chart(
+    document.getElementById('chart-stores').getContext('2d'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pedidos Rachel Allan',
+          data,
+          backgroundColor: colors.map(c => c + 'cc'),
+          hoverBackgroundColor: colors,
+          borderRadius: 6,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.y} pedidos`,
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f0e8dc' },
+            ticks: { precision: 0, font: { size: 12 } },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 13, weight: '700' } },
+          },
+        },
+      },
+    }
+  );
+}
+
+// Barras horizontales — estilos por tienda
+function renderStyleBar(canvasId, wrapId, rows, color) {
+  destroyChart(canvasId);
+  const pairs = countTop(rows, 'estilo', 15);
+  if (!pairs.length) {
+    document.getElementById(wrapId).innerHTML =
+      '<div class="no-data">Sin datos Rachel Allan para esta tienda</div>';
+    return;
+  }
+
+  const labels = pairs.map(p => p[0]);
+  const data   = pairs.map(p => p[1]);
+
+  // Altura dinámica según cantidad de estilos
+  const wrap = document.getElementById(wrapId);
+  wrap.style.height = Math.max(220, labels.length * 34 + 40) + 'px';
+
+  charts[canvasId] = new Chart(
+    document.getElementById(canvasId).getContext('2d'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pedidos',
+          data,
+          backgroundColor: color + 'bb',
+          hoverBackgroundColor: color,
+          borderRadius: 4,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.x} pedido${ctx.parsed.x !== 1 ? 's' : ''}`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: { color: '#f0e8dc' },
+            ticks: { precision: 0 },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 12 } },
+          },
+        },
+      },
+    }
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+async function init() {
+  const results = await Promise.all(STORES.map(loadStore));
+  const errors  = results.filter(r => r.error).map(r => `${r.id}: ${r.error}`);
+
+  document.getElementById('loading').style.display = 'none';
+
+  if (errors.length) {
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'block';
+    banner.innerHTML = `⚠️ Error al cargar: <strong>${errors.join(' · ')}</strong>`;
+  }
+
+  // Agrupar por tienda
+  const byStore = {};
+  for (const { id, rows } of results) byStore[id] = rows;
+
+  const total = Object.values(byStore).reduce((s, r) => s + r.length, 0);
+  if (total === 0) {
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'block';
+    banner.innerHTML = `❌ No se pudieron cargar los CSV. Usa un servidor local: <code>python3 -m http.server</code>`;
+    return;
+  }
+
+  document.getElementById('dashboard').style.display = 'block';
+
+  // Métricas
+  document.getElementById('m-nj').textContent = (byStore['NJ'] || []).length;
+  document.getElementById('m-va').textContent = (byStore['VA'] || []).length;
+  document.getElementById('m-ct').textContent = (byStore['CT'] || []).length;
+  document.getElementById('m-ny').textContent = (byStore['NY'] || []).length;
+
+  // Gráficos
+  renderStoreBar(byStore);
+  renderStyleBar('chart-nj', 'wrap-nj', byStore['NJ'] || [], STORE_COLORS.NJ);
+  renderStyleBar('chart-ny', 'wrap-ny', byStore['NY'] || [], STORE_COLORS.NY);
+  renderStyleBar('chart-ct', 'wrap-ct', byStore['CT'] || [], STORE_COLORS.CT);
+  renderStyleBar('chart-va', 'wrap-va', byStore['VA'] || [], STORE_COLORS.VA);
+}
+
+init();
+</script>
+</body>
+</html>
