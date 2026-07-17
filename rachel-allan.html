@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rachel Allan · Reporte por Tienda</title>
+  <title>Reporte por Marca · QuinceDresses</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -118,6 +118,56 @@
       margin: 0 auto 1.2rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FILTROS ── */
+    .filter-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1rem 1.3rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.8rem;
+      align-items: flex-end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .filter-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .filter-select {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--dark);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 0.38rem 2rem 0.38rem 0.75rem;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6060' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.65rem center;
+      transition: border-color 0.18s;
+    }
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--rose);
+    }
+    .filter-select.brand-select {
+      min-width: 180px;
+    }
 
     /* ── MÉTRICAS ── */
     .metrics-grid {
@@ -244,8 +294,8 @@
 
 <header>
   <a class="back-link" href="index.html">Dashboard</a>
-  <div class="header-eyebrow">Reporte de Marca · 2026</div>
-  <h1>Rachel Allan</h1>
+  <div class="header-eyebrow">Reporte de Marca</div>
+  <h1 id="brand-display">—</h1>
   <div class="header-tagline">Estilos vendidos por tienda &nbsp;·&nbsp; NJ &nbsp;·&nbsp; VA &nbsp;·&nbsp; CT &nbsp;·&nbsp; NY</div>
 </header>
 
@@ -258,34 +308,50 @@
 
   <div id="dashboard" style="display:none">
 
+    <!-- Filtros -->
+    <div class="filter-card">
+      <div class="filter-group">
+        <label class="filter-label">Marca</label>
+        <select id="brand-select" class="filter-select brand-select"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Desde</label>
+        <select id="from-month" class="filter-select"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Hasta</label>
+        <select id="to-month" class="filter-select"></select>
+      </div>
+    </div>
+
     <!-- Métricas -->
     <div class="metrics-grid">
       <div class="metric-card" style="--accent: var(--nj)">
         <div class="metric-label">New Jersey</div>
         <div class="metric-value" id="m-nj">—</div>
-        <div class="metric-sub">pedidos RA</div>
+        <div class="metric-sub">pedidos</div>
       </div>
       <div class="metric-card" style="--accent: var(--va)">
         <div class="metric-label">Virginia</div>
         <div class="metric-value" id="m-va">—</div>
-        <div class="metric-sub">pedidos RA</div>
+        <div class="metric-sub">pedidos</div>
       </div>
       <div class="metric-card" style="--accent: var(--ct)">
         <div class="metric-label">Connecticut</div>
         <div class="metric-value" id="m-ct">—</div>
-        <div class="metric-sub">pedidos RA</div>
+        <div class="metric-sub">pedidos</div>
       </div>
       <div class="metric-card" style="--accent: var(--ny)">
         <div class="metric-label">New York</div>
         <div class="metric-value" id="m-ny">—</div>
-        <div class="metric-sub">pedidos RA</div>
+        <div class="metric-sub">pedidos</div>
       </div>
     </div>
 
     <!-- Gráfico comparativo por tienda -->
     <div class="chart-card">
       <div class="card-eyebrow">Comparativo</div>
-      <div class="card-title">Rachel Allan — pedidos totales por tienda</div>
+      <div class="card-title" id="chart-stores-title">— pedidos totales por tienda</div>
       <div class="chart-wrap">
         <canvas id="chart-stores"></canvas>
       </div>
@@ -296,7 +362,7 @@
 
       <div class="store-card" style="--store-color: var(--nj)">
         <div class="store-badge">NJ</div>
-        <div class="store-title">New Jersey · Estilos Rachel Allan</div>
+        <div class="store-title" id="title-nj">New Jersey · Estilos</div>
         <div class="store-chart-wrap" id="wrap-nj">
           <canvas id="chart-nj"></canvas>
         </div>
@@ -304,7 +370,7 @@
 
       <div class="store-card" style="--store-color: var(--ny)">
         <div class="store-badge">NY</div>
-        <div class="store-title">New York · Estilos Rachel Allan</div>
+        <div class="store-title" id="title-ny">New York · Estilos</div>
         <div class="store-chart-wrap" id="wrap-ny">
           <canvas id="chart-ny"></canvas>
         </div>
@@ -312,7 +378,7 @@
 
       <div class="store-card" style="--store-color: var(--ct)">
         <div class="store-badge">CT</div>
-        <div class="store-title">Connecticut · Estilos Rachel Allan</div>
+        <div class="store-title" id="title-ct">Connecticut · Estilos</div>
         <div class="store-chart-wrap" id="wrap-ct">
           <canvas id="chart-ct"></canvas>
         </div>
@@ -320,7 +386,7 @@
 
       <div class="store-card" style="--store-color: var(--va)">
         <div class="store-badge">VA</div>
-        <div class="store-title">Virginia · Estilos Rachel Allan</div>
+        <div class="store-title" id="title-va">Virginia · Estilos</div>
         <div class="store-chart-wrap" id="wrap-va">
           <canvas id="chart-va"></canvas>
         </div>
@@ -353,11 +419,90 @@ const STORE_COLORS = {
   NY: '#c9974a',
 };
 
+const STORE_NAMES = {
+  NJ: 'New Jersey',
+  VA: 'Virginia',
+  CT: 'Connecticut',
+  NY: 'New York',
+};
+
 const PALETTE = [
   '#8b1a4a','#c9974a','#3d7a6b','#2d5fa3','#7a4a9b',
   '#c4496a','#4a7c59','#b5631a','#1a5a8b','#6b4a8b',
   '#c42860','#4a6b9b','#8b4513','#3d6b3d','#9b3d1a',
 ];
+
+const MES_CORTO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ESTADO GLOBAL
+// ─────────────────────────────────────────────────────────────────────────────
+let allRawByStore = {};   // { NJ: [...], VA: [...], CT: [...], NY: [...] }
+let selectedBrand = '';
+let fromMonth     = '';
+let toMonth       = '';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARSEO DE FECHAS (igual que index.html)
+// ─────────────────────────────────────────────────────────────────────────────
+const MES_MAP = {
+  'enero':0, 'febrero':1, 'febero':1, 'febereo':1,
+  'marzo':2, 'abril':3, 'mayo':4, 'junio':5, 'julio':6,
+  'agosto':7, 'agosoto':7, 'augusto':7,
+  'septiembre':8, 'septembire':8,
+  'octubre':9, 'noviembre':10,
+  'diciembre':11, 'deciembre':11,
+};
+
+function parseFechaOrden(s) {
+  if (!s) return null;
+  s = s.trim().replace(/\s+/g, ' ');
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4,5})$/);
+  if (m) {
+    let y = parseInt(m[3], 10);
+    if (y > 2099) y = parseInt(String(m[3]).replace(/^20(\d{3})$/, '2$1'), 10) || y;
+    const d = new Date(y, parseInt(m[1], 10) - 1, parseInt(m[2], 10));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  m = s.match(/^([A-Za-záéíóúñü]+)\s+(\d{1,2}),?\s*(\d{4})$/i);
+  if (m) {
+    const mes = MES_MAP[m[1].toLowerCase()];
+    if (mes !== undefined) {
+      const d = new Date(parseInt(m[3], 10), mes, parseInt(m[2], 10));
+      return isNaN(d.getTime()) ? null : d;
+    }
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NORMALIZACIÓN
+// ─────────────────────────────────────────────────────────────────────────────
+function normalizeCompania(s) {
+  if (!s) return '';
+  s = s.trim();
+  if (/quince\s*couture/i.test(s))              return 'Quince Couture';
+  if (/house\s*of\s*wu|^how\b|^h\.o\.w\b/i.test(s)) return 'House of Wu';
+  if (/rachel{1,2}\s*all?an?/i.test(s))         return 'Rachel Allan';
+  if (/mori\s*lee|morilee/i.test(s))            return 'Morilee';
+  if (/ragazza/i.test(s))                       return 'Ragazza';
+  if (/amabella/i.test(s))                      return 'Amabella';
+  if (/princesa/i.test(s))                      return 'Princesa';
+  if (/dancing\s*queen/i.test(s))               return 'Dancing Queen';
+  if (/bella\s*couture/i.test(s))               return 'Bella Couture';
+  if (/shankara/i.test(s))                      return 'Shankara';
+  if (/fiesta/i.test(s))                        return 'HOW Fiesta';
+  if (/juliet/i.test(s))                        return 'Juliet';
+  if (/accesri?o/i.test(s))                     return '';
+  return s;
+}
+
+function normalizeEstilo(s) {
+  if (!s) return '';
+  return s.trim()
+    .replace(/^(RQ|QC|QA|PR|EV|MV|BM|AQ|OM)\s+(\d)/i, (_, p, d) => p.toUpperCase() + d)
+    .replace(/^Q\s+(\d)/i, (_, d) => 'Q' + d);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -367,18 +512,6 @@ function getField(raw, ...keys) {
     if (raw[k] !== undefined && raw[k] !== null) return String(raw[k]).trim();
   }
   return '';
-}
-
-function isRachelAllan(s) {
-  return /rachel{1,2}\s*all?an?/i.test(s);
-}
-
-function normalizeEstilo(s) {
-  if (!s) return '';
-  return s.trim()
-    .replace(/\s+/g, ' ')
-    .replace(/^(RQ|QC|QA|PR|EV|MV|BM|AQ|OM)\s+(\d)/i, (_, p, d) => p.toUpperCase() + d)
-    .replace(/^Q\s+(\d)/i, (_, d) => 'Q' + d);
 }
 
 function isJunkRow(raw) {
@@ -399,6 +532,22 @@ function countTop(arr, key, n = 15) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FILTRADO
+// ─────────────────────────────────────────────────────────────────────────────
+function getFiltered() {
+  const byStore = {};
+  for (const [id, rows] of Object.entries(allRawByStore)) {
+    byStore[id] = rows.filter(r => {
+      if (selectedBrand && r.compania !== selectedBrand) return false;
+      if (fromMonth && r.monthKey && r.monthKey < fromMonth) return false;
+      if (toMonth   && r.monthKey && r.monthKey > toMonth)   return false;
+      return true;
+    });
+  }
+  return byStore;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // CARGA DE CSV
 // ─────────────────────────────────────────────────────────────────────────────
 function loadStore(store) {
@@ -411,11 +560,21 @@ function loadStore(store) {
         const rows = [];
         for (const raw of data) {
           if (isJunkRow(raw)) continue;
-          const compania = getField(raw, 'COMPANIA', 'Compania');
-          if (!isRachelAllan(compania)) continue;
+          const compania = normalizeCompania(getField(raw, 'COMPANIA', 'Compania'));
+          if (!compania) continue;
+          const fechaRaw = getField(raw, 'FECHA DE ORDEN', 'FECHA ORDEN', 'Fecha Orden');
+          const fd = parseFechaOrden(fechaRaw);
+          const monthKey = (() => {
+            if (!fd) return null;
+            const y = fd.getFullYear(), mo = fd.getMonth();
+            return (y < 2024 || y > 2027) ? null
+              : `${y}-${String(mo + 1).padStart(2, '0')}`;
+          })();
           rows.push({
-            estilo:  normalizeEstilo(getField(raw, 'ESTILO', 'Estilo')),
-            tienda:  store.id,
+            estilo:   normalizeEstilo(getField(raw, 'ESTILO', 'Estilo')),
+            compania,
+            monthKey,
+            tienda:   store.id,
           });
         }
         resolve({ id: store.id, rows, error: null });
@@ -428,6 +587,50 @@ function loadStore(store) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// POBLAR SELECTORES
+// ─────────────────────────────────────────────────────────────────────────────
+function populateBrandSelect() {
+  const allRows = Object.values(allRawByStore).flat();
+  const brands  = new Set(allRows.map(r => r.compania).filter(Boolean));
+  const sorted  = [...brands].sort();
+  const sel     = document.getElementById('brand-select');
+  sel.innerHTML = '<option value="">Todas las marcas</option>';
+  for (const b of sorted) {
+    const opt = document.createElement('option');
+    opt.value       = b;
+    opt.textContent = b;
+    sel.appendChild(opt);
+  }
+  if (selectedBrand) sel.value = selectedBrand;
+}
+
+function populateMonthSelects() {
+  const allRows = Object.values(allRawByStore).flat();
+  const months  = new Set(allRows.map(r => r.monthKey).filter(Boolean));
+  const sorted  = [...months].sort();
+
+  const fromSel = document.getElementById('from-month');
+  const toSel   = document.getElementById('to-month');
+
+  fromSel.innerHTML = '<option value="">Inicio</option>';
+  toSel.innerHTML   = '<option value="">Hoy</option>';
+
+  for (const mk of sorted) {
+    const [y, mo] = mk.split('-');
+    const label   = `${MES_CORTO[parseInt(mo, 10) - 1]} ${y}`;
+    const opt1    = document.createElement('option');
+    opt1.value       = mk;
+    opt1.textContent = label;
+    fromSel.appendChild(opt1);
+    const opt2 = opt1.cloneNode(true);
+    toSel.appendChild(opt2);
+  }
+
+  if (fromMonth) fromSel.value = fromMonth;
+  if (toMonth)   toSel.value   = toMonth;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GRÁFICOS
 // ─────────────────────────────────────────────────────────────────────────────
 const charts = {};
@@ -436,13 +639,26 @@ function destroyChart(id) {
   if (charts[id]) { charts[id].destroy(); delete charts[id]; }
 }
 
+function ensureCanvas(wrapId, canvasId) {
+  let canvas = document.getElementById(canvasId);
+  if (!canvas) {
+    const wrap  = document.getElementById(wrapId);
+    wrap.innerHTML = `<canvas id="${canvasId}"></canvas>`;
+    canvas = document.getElementById(canvasId);
+  }
+  return canvas;
+}
+
 // Barras verticales — comparativo por tienda
-function renderStoreBar(byStore) {
+function renderStoreBar(byStore, brandLabel) {
   destroyChart('stores');
   const ids    = ['NJ', 'VA', 'CT', 'NY'];
-  const labels = ['New Jersey', 'Virginia', 'Connecticut', 'New York'];
+  const labels = ids.map(id => STORE_NAMES[id]);
   const data   = ids.map(id => (byStore[id] || []).length);
   const colors = ids.map(id => STORE_COLORS[id]);
+
+  document.getElementById('chart-stores-title').textContent =
+    `${brandLabel} — pedidos totales por tienda`;
 
   charts['stores'] = new Chart(
     document.getElementById('chart-stores').getContext('2d'),
@@ -451,7 +667,7 @@ function renderStoreBar(byStore) {
       data: {
         labels,
         datasets: [{
-          label: 'Pedidos Rachel Allan',
+          label: 'Pedidos',
           data,
           backgroundColor: colors.map(c => c + 'cc'),
           hoverBackgroundColor: colors,
@@ -487,24 +703,28 @@ function renderStoreBar(byStore) {
 }
 
 // Barras horizontales — estilos por tienda
-function renderStyleBar(canvasId, wrapId, rows, color) {
+function renderStyleBar(canvasId, wrapId, storeId, rows, color, brandLabel) {
   destroyChart(canvasId);
   const pairs = countTop(rows, 'estilo', 15);
+
+  document.getElementById(`title-${storeId.toLowerCase()}`).textContent =
+    `${STORE_NAMES[storeId]} · Estilos${brandLabel ? ' ' + brandLabel : ''}`;
+
   if (!pairs.length) {
     document.getElementById(wrapId).innerHTML =
-      '<div class="no-data">Sin datos Rachel Allan para esta tienda</div>';
+      `<div class="no-data">Sin datos para esta tienda</div>`;
     return;
   }
 
+  const canvas = ensureCanvas(wrapId, canvasId);
   const labels = pairs.map(p => p[0]);
   const data   = pairs.map(p => p[1]);
 
-  // Altura dinámica según cantidad de estilos
   const wrap = document.getElementById(wrapId);
   wrap.style.height = Math.max(220, labels.length * 34 + 40) + 'px';
 
   charts[canvasId] = new Chart(
-    document.getElementById(canvasId).getContext('2d'),
+    canvas.getContext('2d'),
     {
       type: 'bar',
       data: {
@@ -547,9 +767,37 @@ function renderStyleBar(canvasId, wrapId, rows, color) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// RENDER COMPLETO
+// ─────────────────────────────────────────────────────────────────────────────
+function renderAll() {
+  const byStore   = getFiltered();
+  const brandLabel = selectedBrand || 'Todas las marcas';
+
+  // Header
+  document.getElementById('brand-display').textContent = selectedBrand || 'Todas las marcas';
+
+  // Métricas
+  document.getElementById('m-nj').textContent = (byStore['NJ'] || []).length;
+  document.getElementById('m-va').textContent = (byStore['VA'] || []).length;
+  document.getElementById('m-ct').textContent = (byStore['CT'] || []).length;
+  document.getElementById('m-ny').textContent = (byStore['NY'] || []).length;
+
+  // Gráficos
+  renderStoreBar(byStore, brandLabel);
+  renderStyleBar('chart-nj', 'wrap-nj', 'NJ', byStore['NJ'] || [], STORE_COLORS.NJ, selectedBrand);
+  renderStyleBar('chart-ny', 'wrap-ny', 'NY', byStore['NY'] || [], STORE_COLORS.NY, selectedBrand);
+  renderStyleBar('chart-ct', 'wrap-ct', 'CT', byStore['CT'] || [], STORE_COLORS.CT, selectedBrand);
+  renderStyleBar('chart-va', 'wrap-va', 'VA', byStore['VA'] || [], STORE_COLORS.VA, selectedBrand);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────────────────────
 async function init() {
+  // Leer parámetro de marca desde URL (?brand=Rachel+Allan)
+  const urlParams = new URLSearchParams(window.location.search);
+  selectedBrand   = urlParams.get('brand') || '';
+
   const results = await Promise.all(STORES.map(loadStore));
   const errors  = results.filter(r => r.error).map(r => `${r.id}: ${r.error}`);
 
@@ -562,10 +810,9 @@ async function init() {
   }
 
   // Agrupar por tienda
-  const byStore = {};
-  for (const { id, rows } of results) byStore[id] = rows;
+  for (const { id, rows } of results) allRawByStore[id] = rows;
 
-  const total = Object.values(byStore).reduce((s, r) => s + r.length, 0);
+  const total = Object.values(allRawByStore).reduce((s, r) => s + r.length, 0);
   if (total === 0) {
     const banner = document.getElementById('error-banner');
     banner.style.display = 'block';
@@ -575,18 +822,27 @@ async function init() {
 
   document.getElementById('dashboard').style.display = 'block';
 
-  // Métricas
-  document.getElementById('m-nj').textContent = (byStore['NJ'] || []).length;
-  document.getElementById('m-va').textContent = (byStore['VA'] || []).length;
-  document.getElementById('m-ct').textContent = (byStore['CT'] || []).length;
-  document.getElementById('m-ny').textContent = (byStore['NY'] || []).length;
+  populateBrandSelect();
+  populateMonthSelects();
+  renderAll();
 
-  // Gráficos
-  renderStoreBar(byStore);
-  renderStyleBar('chart-nj', 'wrap-nj', byStore['NJ'] || [], STORE_COLORS.NJ);
-  renderStyleBar('chart-ny', 'wrap-ny', byStore['NY'] || [], STORE_COLORS.NY);
-  renderStyleBar('chart-ct', 'wrap-ct', byStore['CT'] || [], STORE_COLORS.CT);
-  renderStyleBar('chart-va', 'wrap-va', byStore['VA'] || [], STORE_COLORS.VA);
+  // Evento: cambio de marca
+  document.getElementById('brand-select').addEventListener('change', e => {
+    selectedBrand = e.target.value;
+    renderAll();
+  });
+
+  // Evento: mes desde
+  document.getElementById('from-month').addEventListener('change', e => {
+    fromMonth = e.target.value;
+    renderAll();
+  });
+
+  // Evento: mes hasta
+  document.getElementById('to-month').addEventListener('change', e => {
+    toMonth = e.target.value;
+    renderAll();
+  });
 }
 
 init();
