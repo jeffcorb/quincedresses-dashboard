@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eficiencia de Consultoras · QuinceDresses</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #FAF8F5;
+    --surface: #FFFFFF;
+    --border: #E4DFD6;
+    --text-primary: #2B2622;
+    --text-secondary: #7A7168;
+    --accent: #8C5A45;
+    --accent-light: #F1E5DE;
+    --success: #4B7355;
+    --success-light: #E7EFE8;
+    --danger: #B4534A;
+    --danger-light: #F6E7E5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0; }
+  #lastUpdate { font-size: 13px; color: var(--text-secondary); }
+  .back-link {
+    font-size: 13px; color: var(--text-secondary); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px; margin-bottom: 16px;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+  .filters label { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+  select, input[type="month"] {
+    padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); font-size: 14px; color: var(--text-primary);
+  }
+  #sinFechaNota { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 24px; display: none; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .kpi-label { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 6px; }
+  .kpi-value { font-size: 26px; font-weight: 600; margin: 0; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+  .panel h2 { font-size: 15px; font-weight: 600; margin: 0 0 16px; }
+  .chart-box { position: relative; width: 100%; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-secondary); font-weight: 500; }
+  td.num, th.num { text-align: right; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .pill.good { background: var(--success-light); color: var(--success); }
+  .pill.bad  { background: var(--danger-light);  color: var(--danger); }
+
+  #status { color: var(--text-secondary); font-size: 14px; padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link" href="../">← Dashboard de ventas</a>
+
+  <header>
+    <h1>Eficiencia de Consultoras</h1>
+    <span id="lastUpdate"></span>
+  </header>
+
+  <div class="filters">
+    <select id="filterTienda"><option value="">Todas las tiendas</option></select>
+    <select id="filterConsultora"><option value="">Todas las consultoras</option></select>
+    <label>Desde <input type="month" id="filterDesde"></label>
+    <label>Hasta <input type="month" id="filterHasta"></label>
+  </div>
+  <p id="sinFechaNota"></p>
+
+  <div id="status">Cargando datos…</div>
+  <div id="dashboard" style="display:none;">
+
+    <div class="kpis">
+      <div class="kpi"><p class="kpi-label">Citas</p><p class="kpi-value" id="kpiCitas">-</p></div>
+      <div class="kpi"><p class="kpi-label">Ventas</p><p class="kpi-value" id="kpiVentas">-</p></div>
+      <div class="kpi"><p class="kpi-label">Conversión</p><p class="kpi-value" id="kpiConv">-</p></div>
+      <div class="kpi"><p class="kpi-label">Tiempo promedio</p><p class="kpi-value" id="kpiTiempo">-</p></div>
+    </div>
+
+    <div class="panel">
+      <h2>Conversión por consultora</h2>
+      <div class="chart-box" style="height:220px;"><canvas id="convChart" role="img" aria-label="Tasa de conversión por consultora"></canvas></div>
+    </div>
+
+    <div class="panel">
+      <h2>Citas atendidas vs. ventas cerradas</h2>
+      <div class="chart-box" style="height:240px;"><canvas id="volChart" role="img" aria-label="Citas atendidas y ventas por consultora"></canvas></div>
+    </div>
+
+    <div class="panel">
+      <h2>Ranking por consultora</h2>
+      <table>
+        <thead><tr><th>Consultora</th><th>Tienda</th><th class="num">Citas</th><th class="num">Ventas</th><th class="num">Conversión</th><th class="num">T. promedio</th></tr></thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Comparación por tienda</h2>
+      <table>
+        <thead><tr><th>Tienda</th><th class="num">Citas</th><th class="num">Ventas</th><th class="num">Conversión</th><th class="num">T. promedio</th></tr></thead>
+        <tbody id="tiendaBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURA AQUÍ:
+// Pega la URL del CSV publicado desde Google Sheets:
+//   Archivo → Compartir → Publicar en la web → pestaña Consolidado_Citas → CSV
+// ─────────────────────────────────────────────────────────────────────────────
+// Para producción: pega aquí la URL del CSV publicado de Google Sheets
+// (Archivo → Compartir → Publicar en la web → pestaña Consolidado_Citas → CSV)
+// const CSV_URL = "https://docs.google.com/spreadsheets/d/TU_ID/pub?gid=TU_GID&single=true&output=csv";
+
+// URL temporal para pruebas locales con el CSV descargado:
+const CSV_URL = "../Consolidado_Citas - Consolidado_Citas.csv";
+// ─────────────────────────────────────────────────────────────────────────────
+
+let registros = [];
+
+function normalizarSiNo(v) {
+  const t = String(v || '').trim().toUpperCase();
+  if (t === 'SI' || t === 'SÍ') return 'SI';
+  if (t === 'NO') return 'NO';
+  return null;
+}
+
+// El CSV usa formato DD/MM/YYYY (ej: 21/12/2025 = 21 de diciembre).
+// Los registros de NJ no tienen fecha → se incluyen siempre en filtros de periodo.
+function parsearFecha(valor) {
+  const s = String(valor || '').trim();
+  if (!s) return null;
+
+  // DD/MM/YYYY  o  DD-MM-YYYY  o  DD/MM/YY
+  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (m) {
+    const dia = parseInt(m[1], 10);
+    const mes = parseInt(m[2], 10);
+    let anio  = parseInt(m[3], 10);
+    if (anio < 100) anio += 2000;
+    if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return null;
+    const d = new Date(anio, mes - 1, dia);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+function aMesAnio(fechaObj) {
+  return fechaObj.getFullYear() + '-' + String(fechaObj.getMonth() + 1).padStart(2, '0');
+}
+
+function cargarDatos() {
+  Papa.parse(CSV_URL, {
+    download: true,
+    complete: function (results) {
+      const filas = results.data;
+
+      // Leer fecha de última actualización (fila 1, columna B)
+      const ultimaActualizacion = (filas[0] && filas[0][1]) ? filas[0][1].trim() : '';
+      if (ultimaActualizacion) {
+        document.getElementById('lastUpdate').textContent = 'Actualizado: ' + ultimaActualizacion;
+      }
+
+      // Buscar fila de encabezado (primera celda = "Fecha")
+      const idxHeader = filas.findIndex(r => String(r[0] || '').trim() === 'Fecha');
+      if (idxHeader === -1) {
+        document.getElementById('status').textContent =
+          'No se encontró el encabezado "Fecha" en el CSV. Revisa el rango publicado.';
+        return;
+      }
+
+      // Parsear registros: solo filas con consultora definida
+      registros = filas.slice(idxHeader + 1)
+        .filter(r => r.some(c => c))
+        .map(r => ({
+          fecha:      (r[0] || '').trim(),
+          fechaObj:   parsearFecha(r[0]),
+          tienda:     (r[1] || '').trim(),
+          consultora: (r[2] || '').trim(),
+          city:       (r[5] || '').trim(),
+          comoEscucho:(r[6] || '').trim(),
+          cita:       normalizarSiNo(r[7]),
+          compro:     normalizarSiNo(r[8]),
+          minutos:    r[9] !== '' && r[9] !== undefined && !isNaN(r[9]) ? Number(r[9]) : null,
+        }))
+        .filter(r => r.consultora);
+
+      // Nota sobre registros sin fecha
+      const sinFecha = registros.filter(r => !r.fechaObj).length;
+      if (sinFecha > 0) {
+        const nota = document.getElementById('sinFechaNota');
+        nota.style.display = 'block';
+        nota.textContent = sinFecha + ' citas no tienen fecha registrada (ej. New Jersey) '
+          + 'y se incluyen siempre, sin importar el periodo seleccionado.';
+      }
+
+      poblarFiltros();
+      render();
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+    },
+    error: function () {
+      document.getElementById('status').textContent =
+        'No se pudo cargar el CSV. Verifica que la URL esté publicada y sea pública.';
+    }
+  });
+}
+
+function poblarFiltros() {
+  const tiendas     = [...new Set(registros.map(r => r.tienda))].filter(Boolean).sort();
+  const consultoras = [...new Set(registros.map(r => r.consultora))].filter(Boolean).sort();
+
+  const selT = document.getElementById('filterTienda');
+  const selC = document.getElementById('filterConsultora');
+  tiendas.forEach(t     => { const o = document.createElement('option'); o.value = o.textContent = t; selT.appendChild(o); });
+  consultoras.forEach(c => { const o = document.createElement('option'); o.value = o.textContent = c; selC.appendChild(o); });
+
+  selT.addEventListener('change', render);
+  selC.addEventListener('change', render);
+  document.getElementById('filterDesde').addEventListener('change', render);
+  document.getElementById('filterHasta').addEventListener('change', render);
+}
+
+function agrupar(regs, campo) {
+  const stats = {};
+  regs.forEach(r => {
+    if (r.compro === null) return;
+    const key = r[campo];
+    if (!key) return;
+    if (!stats[key]) stats[key] = { citas: 0, ventas: 0, sumaMin: 0, cuentaMin: 0 };
+    stats[key].citas++;
+    if (r.compro === 'SI') stats[key].ventas++;
+    if (r.minutos !== null) { stats[key].sumaMin += r.minutos; stats[key].cuentaMin++; }
+  });
+  return Object.entries(stats).map(([k, s]) => ({
+    nombre:     k,
+    citas:      s.citas,
+    ventas:     s.ventas,
+    conversion: s.citas ? Number(((s.ventas / s.citas) * 100).toFixed(1)) : 0,
+    tiempoProm: s.cuentaMin ? Math.round(s.sumaMin / s.cuentaMin) : null,
+  })).sort((a, b) => b.conversion - a.conversion);
+}
+
+let chartConv, chartVol;
+
+function render() {
+  const tiendaSel    = document.getElementById('filterTienda').value;
+  const consultoraSel= document.getElementById('filterConsultora').value;
+  const desde        = document.getElementById('filterDesde').value;  // 'YYYY-MM' o ''
+  const hasta        = document.getElementById('filterHasta').value;
+
+  const dentroDePeriodo = r => {
+    if (!desde && !hasta) return true;
+    if (!r.fechaObj) return true;  // sin fecha (NJ) → siempre se incluye
+    const ym = aMesAnio(r.fechaObj);
+    if (desde && ym < desde) return false;
+    if (hasta && ym > hasta) return false;
+    return true;
+  };
+
+  const filtrados = registros.filter(r =>
+    (!tiendaSel     || r.tienda     === tiendaSel) &&
+    (!consultoraSel || r.consultora === consultoraSel) &&
+    dentroDePeriodo(r)
+  );
+
+  const conCompro  = filtrados.filter(r => r.compro !== null);
+  const ventas     = conCompro.filter(r => r.compro === 'SI').length;
+  const conTiempo  = filtrados.filter(r => r.minutos !== null);
+  const tiempoProm = conTiempo.length
+    ? Math.round(conTiempo.reduce((a, r) => a + r.minutos, 0) / conTiempo.length)
+    : 0;
+
+  document.getElementById('kpiCitas').textContent   = conCompro.length;
+  document.getElementById('kpiVentas').textContent  = ventas;
+  document.getElementById('kpiConv').textContent    = conCompro.length
+    ? ((ventas / conCompro.length) * 100).toFixed(1) + '%' : 'N/D';
+  document.getElementById('kpiTiempo').textContent  = tiempoProm ? tiempoProm + ' min' : 'N/D';
+
+  const porConsultora = agrupar(filtrados, 'consultora');
+  const porTienda     = agrupar(filtrados, 'tienda');
+
+  // Ranking consultoras
+  const rankBody = document.getElementById('rankBody');
+  rankBody.innerHTML = porConsultora.map(c => {
+    const tiendaDe = filtrados.find(r => r.consultora === c.nombre)?.tienda || '';
+    const pillClass = c.conversion >= 40 ? 'good' : 'bad';
+    return `<tr>
+      <td>${c.nombre}</td><td>${tiendaDe}</td>
+      <td class="num">${c.citas}</td><td class="num">${c.ventas}</td>
+      <td class="num"><span class="pill ${pillClass}">${c.conversion}%</span></td>
+      <td class="num">${c.tiempoProm !== null ? c.tiempoProm + ' min' : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  // Comparación tiendas
+  document.getElementById('tiendaBody').innerHTML = porTienda.map(t =>
+    `<tr><td>${t.nombre}</td><td class="num">${t.citas}</td><td class="num">${t.ventas}</td>
+    <td class="num">${t.conversion}%</td><td class="num">${t.tiempoProm !== null ? t.tiempoProm + ' min' : '—'}</td></tr>`
+  ).join('');
+
+  // Gráfico conversión
+  if (chartConv) chartConv.destroy();
+  chartConv = new Chart(document.getElementById('convChart'), {
+    type: 'bar',
+    data: {
+      labels: porConsultora.map(c => c.nombre),
+      datasets: [{ data: porConsultora.map(c => c.conversion), backgroundColor: '#8C5A45', borderRadius: 4, maxBarThickness: 24 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + '%' } } },
+      scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+    }
+  });
+
+  // Gráfico volumen
+  if (chartVol) chartVol.destroy();
+  chartVol = new Chart(document.getElementById('volChart'), {
+    type: 'bar',
+    data: {
+      labels: porConsultora.map(c => c.nombre),
+      datasets: [
+        { label: 'Citas',  data: porConsultora.map(c => c.citas),  backgroundColor: '#B7A99C', borderRadius: 4, maxBarThickness: 22 },
+        { label: 'Ventas', data: porConsultora.map(c => c.ventas), backgroundColor: '#4B7355', borderRadius: 4, maxBarThickness: 22 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 12 } } } }
+    }
+  });
+}
+
+cargarDatos();
+</script>
+</body>
+</html>
