@@ -69,6 +69,14 @@
   #exTrabajadorTabla tr td { color: var(--text-secondary); }
   #exTrabajadorNota { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 4px; }
 
+  .top-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+  .top-card { background: var(--accent-light); border-radius: 12px; padding: 16px 18px; }
+  .top-card .tienda { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 4px; }
+  .top-card .nombre { font-size: 17px; font-weight: 600; margin: 0 0 6px; color: var(--accent); }
+  .top-card .stats { font-size: 13px; color: var(--text-primary); margin: 0; }
+  .top-card.vacia { background: var(--surface); border: 1px dashed var(--border); color: var(--text-secondary); }
+  .top-card.vacia .nombre { color: var(--text-secondary); }
+
   #status { color: var(--text-secondary); font-size: 14px; padding: 40px 0; text-align: center; }
 </style>
 </head>
@@ -95,6 +103,11 @@
       <div class="kpi"><p class="kpi-label">Ventas</p><p class="kpi-value" id="kpiVentas">-</p></div>
       <div class="kpi"><p class="kpi-label">Conversión</p><p class="kpi-value" id="kpiConv">-</p></div>
       <div class="kpi"><p class="kpi-label">Tiempo promedio</p><p class="kpi-value" id="kpiTiempo">-</p></div>
+    </div>
+
+    <div class="panel">
+      <h2>Top consultora por tienda (por ventas, en el periodo elegido)</h2>
+      <div class="top-grid" id="topPorTienda"></div>
     </div>
 
     <div class="panel">
@@ -139,7 +152,9 @@
 
 <script>
 // ---- CONFIGURA AQUÍ ----
-// Pega la URL del CSV publicado (Archivo > Compartir > Publicar en la web > pestaña Consolidado_Citas > CSV)
+// El CSV debe estar en la misma carpeta que este archivo HTML, con este
+// nombre exacto (el que trae por defecto al descargar la pestaña
+// "Consolidado_Citas" desde Google Sheets: Archivo > Descargar > CSV).
 const CSV_URL = "Consolidado_Citas - Consolidado_Citas.csv";
 // -------------------------
 
@@ -217,17 +232,22 @@ function cargarDatos() {
 
 function poblarFiltros() {
   const tiendas = [...new Set(registros.map(r => r.tienda))].filter(Boolean).sort();
-  const todasConsultoras = [...new Set(registros.map(r => r.consultora))].filter(Boolean).sort();
-  const activas = todasConsultoras.filter(c => !c.startsWith('Ex Trabajador'));
-  const exTrabajador = todasConsultoras.filter(c => c.startsWith('Ex Trabajador'));
+  const parejas = [...new Set(registros.filter(r => r.consultora).map(r => r.tienda + '||' + r.consultora))].sort();
+  const activas = parejas.filter(p => !p.split('||')[1].startsWith('Ex Trabajador'));
+  const exTrabajador = parejas.filter(p => p.split('||')[1].startsWith('Ex Trabajador'));
+
+  const opcion = p => {
+    const [tienda, nombre] = p.split('||');
+    return `<option value="${p}">${nombre} — ${tienda}</option>`;
+  };
 
   const selT = document.getElementById('filterTienda');
   const selC = document.getElementById('filterConsultora');
   tiendas.forEach(t => selT.innerHTML += `<option value="${t}">${t}</option>`);
 
-  let optionsHtml = '<optgroup label="Activas">' + activas.map(c => `<option value="${c}">${c}</option>`).join('') + '</optgroup>';
+  let optionsHtml = '<optgroup label="Activas">' + activas.map(opcion).join('') + '</optgroup>';
   if (exTrabajador.length) {
-    optionsHtml += '<optgroup label="Ex Trabajador">' + exTrabajador.map(c => `<option value="${c}">${c}</option>`).join('') + '</optgroup>';
+    optionsHtml += '<optgroup label="Ex Trabajador">' + exTrabajador.map(opcion).join('') + '</optgroup>';
   }
   selC.innerHTML += optionsHtml;
 
@@ -249,6 +269,27 @@ function agrupar(regs, campo) {
   });
   return Object.entries(stats).map(([k, s]) => ({
     nombre: k, citas: s.citas, ventas: s.ventas,
+    conversion: s.citas ? Number(((s.ventas / s.citas) * 100).toFixed(1)) : 0,
+    tiempoProm: s.cuentaMin ? Math.round(s.sumaMin / s.cuentaMin) : null
+  })).sort((a, b) => b.conversion - a.conversion);
+}
+
+// Agrupa por tienda + consultora (no solo por nombre), porque el mismo
+// nombre puede existir como consultora activa en más de una tienda
+// (ej. "Ashley" en New Jersey y en Connecticut son personas distintas).
+function agruparPorConsultora(regs) {
+  const stats = {};
+  regs.forEach(r => {
+    if (r.compro === null) return;
+    const key = r.tienda + '||' + r.consultora;
+    if (!stats[key]) stats[key] = { tienda: r.tienda, nombre: r.consultora, citas: 0, ventas: 0, sumaMin: 0, cuentaMin: 0 };
+    const s = stats[key];
+    s.citas++;
+    if (r.compro === 'SI') s.ventas++;
+    if (r.minutos !== null) { s.sumaMin += r.minutos; s.cuentaMin++; }
+  });
+  return Object.values(stats).map(s => ({
+    nombre: s.nombre, tienda: s.tienda, citas: s.citas, ventas: s.ventas,
     conversion: s.citas ? Number(((s.ventas / s.citas) * 100).toFixed(1)) : 0,
     tiempoProm: s.cuentaMin ? Math.round(s.sumaMin / s.cuentaMin) : null
   })).sort((a, b) => b.conversion - a.conversion);
@@ -283,7 +324,9 @@ function render() {
   };
 
   const filtrados = registros.filter(r =>
-    (!tiendaSel || r.tienda === tiendaSel) && (!consultoraSel || r.consultora === consultoraSel) && dentroDePeriodo(r)
+    (!tiendaSel || r.tienda === tiendaSel) &&
+    (!consultoraSel || (r.tienda + '||' + r.consultora) === consultoraSel) &&
+    dentroDePeriodo(r)
   );
 
   const conCompro = filtrados.filter(r => r.compro !== null);
@@ -296,26 +339,24 @@ function render() {
   document.getElementById('kpiConv').textContent = conCompro.length ? ((ventas / conCompro.length) * 100).toFixed(1) + '%' : 'N/D';
   document.getElementById('kpiTiempo').textContent = tiempoProm + ' min';
 
-  const porConsultora = agrupar(filtrados, 'consultora');
+  const porConsultora = agruparPorConsultora(filtrados);
   const activas = porConsultora.filter(c => !c.nombre.startsWith('Ex Trabajador'));
   const exTrabajador = porConsultora.filter(c => c.nombre.startsWith('Ex Trabajador'));
   const porTienda = agrupar(filtrados, 'tienda');
 
   const rankBody = document.getElementById('rankBody');
   rankBody.innerHTML = activas.map(c => {
-    const tiendaDe = filtrados.find(r => r.consultora === c.nombre)?.tienda || '';
     const pillClass = c.conversion >= 40 ? 'good' : 'bad';
     const badgeNueva = c.citas < 5 ? '<span class="pill nueva">pocos datos</span>' : '';
-    return `<tr><td>${c.nombre}${badgeNueva}</td><td>${tiendaDe}</td><td class="num">${c.citas}</td><td class="num">${c.ventas}</td>
+    return `<tr><td>${c.nombre}${badgeNueva}</td><td>${c.tienda}</td><td class="num">${c.citas}</td><td class="num">${c.ventas}</td>
       <td class="num"><span class="pill ${pillClass}">${c.conversion}%</span></td>
       <td class="num">${c.tiempoProm !== null ? c.tiempoProm + ' min' : '-'}</td></tr>`;
   }).join('') || '<tr><td colspan="6" style="color:var(--text-secondary);">Sin datos para este filtro</td></tr>';
 
   const exBody = document.getElementById('exBody');
-  exBody.innerHTML = exTrabajador.map(c => {
-    const tienda = c.nombre.replace(/^Ex Trabajador \((.+)\)$/, '$1');
-    return `<tr><td>${tienda}</td><td class="num">${c.citas}</td><td class="num">${c.ventas}</td><td class="num">${c.conversion}%</td></tr>`;
-  }).join('') || '<tr><td colspan="4" style="color:var(--text-secondary);">Sin citas de ex-trabajadores en este filtro</td></tr>';
+  exBody.innerHTML = exTrabajador.map(c =>
+    `<tr><td>${c.tienda}</td><td class="num">${c.citas}</td><td class="num">${c.ventas}</td><td class="num">${c.conversion}%</td></tr>`
+  ).join('') || '<tr><td colspan="4" style="color:var(--text-secondary);">Sin citas de ex-trabajadores en este filtro</td></tr>';
 
   const totalEx = exTrabajador.reduce((a, c) => a + c.citas, 0);
   document.getElementById('exToggleLabel').textContent =
@@ -326,10 +367,27 @@ function render() {
   tiendaBody.innerHTML = porTienda.map(t => `<tr><td>${t.nombre}</td><td class="num">${t.citas}</td><td class="num">${t.ventas}</td>
     <td class="num">${t.conversion}%</td><td class="num">${t.tiempoProm !== null ? t.tiempoProm + ' min' : '-'}</td></tr>`).join('');
 
+  // Top consultora por tienda, por número de ventas (no por % de conversión,
+  // para que una consultora con pocas citas no le gane a otra que vendió más).
+  const todasLasTiendas = [...new Set(registros.map(r => r.tienda))].filter(Boolean).sort();
+  const tiendasAMostrar = tiendaSel ? [tiendaSel] : todasLasTiendas;
+  const topDiv = document.getElementById('topPorTienda');
+  topDiv.innerHTML = tiendasAMostrar.map(t => {
+    const candidatas = activas.filter(c => c.tienda === t && c.ventas > 0);
+    if (!candidatas.length) {
+      return `<div class="top-card vacia"><p class="tienda">${t}</p><p class="nombre">Sin ventas</p><p class="stats">en este periodo</p></div>`;
+    }
+    const top = candidatas.reduce((mejor, c) => c.ventas > mejor.ventas ? c : mejor);
+    return `<div class="top-card"><p class="tienda">${t}</p><p class="nombre">🏆 ${top.nombre}</p>
+      <p class="stats">${top.ventas} ventas · ${top.citas} citas · ${top.conversion}%</p></div>`;
+  }).join('');
+
+  const etiquetaConsultora = c => tiendaSel ? c.nombre : `${c.nombre} (${c.tienda})`;
+
   if (chartConv) chartConv.destroy();
   chartConv = new Chart(document.getElementById('convChart'), {
     type: 'bar',
-    data: { labels: activas.map(c => c.nombre), datasets: [{ data: activas.map(c => c.conversion), backgroundColor: '#8C5A45', borderRadius: 4, maxBarThickness: 24 }] },
+    data: { labels: activas.map(etiquetaConsultora), datasets: [{ data: activas.map(c => c.conversion), backgroundColor: '#8C5A45', borderRadius: 4, maxBarThickness: 24 }] },
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + '%' } } },
@@ -341,7 +399,7 @@ function render() {
   chartVol = new Chart(document.getElementById('volChart'), {
     type: 'bar',
     data: {
-      labels: activas.map(c => c.nombre),
+      labels: activas.map(etiquetaConsultora),
       datasets: [
         { label: 'Citas', data: activas.map(c => c.citas), backgroundColor: '#B7A99C', borderRadius: 4, maxBarThickness: 22 },
         { label: 'Ventas', data: activas.map(c => c.ventas), backgroundColor: '#4B7355', borderRadius: 4, maxBarThickness: 22 }
